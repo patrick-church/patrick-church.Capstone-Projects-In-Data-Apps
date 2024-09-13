@@ -43,6 +43,16 @@
     </ul>
     <p>If no parameters are provided, default values are used for Random Forest.</p>
 
+    <h3>Kernel Selection (<code>_get_kernel</code>)</h3>
+    <p>Based on the kernel type specified during initialization, this method returns the appropriate kernel function. The available kernel options include:</p>
+    <ul>
+        <li><b>Gaussian</b></li>
+        <li><b>Tricubic</b></li>
+        <li><b>Epanechnikov</b></li>
+        <li><b>Quartic</b></li>
+    </ul>
+    <p>If an unknown kernel type is passed during initialization, the method raises an error, ensuring the user selects a valid kernel function.</p>
+
 
     
 
