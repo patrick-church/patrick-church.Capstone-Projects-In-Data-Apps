@@ -10,7 +10,51 @@
     <p>This is my personal website hosted on GitHub Pages!</p>
 
     <h2>Automated Cross-Validation for LWR and Random Forest</h2>
-    <p>My code displays a class that implements a Locally Weighted Regression (LWR), a regression technique that emphasizes local data points when making predictions. It also offers the option to compare this method with Random Forest by switching the model type. Below is a breakdown of the class by function and details on how you can configure both LWR and Random Forest.
+    <p>My code displays a class that implements a Locally Weighted Regression (LWR), a regression technique that emphasizes local data points when making predictions. It also offers the option to compare this method with Random Forest by switching the model type. Below is a breakdown of the class by function and details on how you can configure both LWR and Random Forest. The cross validate function in the class incorporates all the other functions from the class for optimal automation. The cross_validate function brings together the fit, predict, mse, and r2_score functions to automate the K-fold cross-validation for Locally Weighted Regression (LWR) and Random Forest. It streamlines the entire process—training, predicting, and evaluating—into one function, eliminating the need to manually run each step for every fold, making model evaluation efficient and automated.
+This class, specifically because of the cross validate function, allows for a fast and easy way for the user to perform a LWR or Random Forest on their data.
+Kernel Functions:
+Before we get into the functions within the class, there are four kernel functions outside of the class that help create the weights for the LWR. These four kernel functions are defined to calculate weights based on the distance between data points. These weights determine how much influence each training point has on the prediction, with closer points getting higher weights.
+Gaussian
+Tricubic
+Epanechnikov
+Quartic 
+The different kernel functions allow for the user of the class to test different kernel’s effectiveness, ultimately deciding on the one which yields the most accurate predictions.
+PatricksModel Class Constructor (__init__):
+Parameters: The model type ('lwr' or 'rf'), kernel type (for LWR), neighborhood fraction (f), number of iterations (iter), and whether to include an intercept (intercept).
+Random Forest Parameters: If the model type is 'rf', the constructor initializes a Random Forest with parameters like the number of trees (n_estimators), tree depth (max_depth), and random state (random_state). If no parameters are provided, default values are used.
+
+Kernel Selection (_get_kernel):
+Based on the kernel type specified during initialization, this method returns the appropriate kernel function. It raises an error if an unknown kernel type is passed.
+
+
+Model Fitting (fit):
+For LWR, the input features (X) are scaled using MinMaxScaler, and the scaled training data and target values (y) are stored.
+For Random Forest, the model fits the data using the built-in fit method from the RandomForestRegressor.
+
+Weight Calculation (_weight_calculation):
+This function calculates the weights for each training point relative to the new data point. It computes the Euclidean distance between each training point and the new point, applies the selected kernel function, and scales the distances to generate weights. The number of neighbors considered is determined by the fraction (f) of total training samples.
+
+Prediction (predict):
+In LWR, predictions are made by scaling the new input data, computing weights using the training data, and solving for the regression coefficients via weighted least squares. The function iterates through the training data to adjust the weights and recalculates residuals to improve predictions. L2 regularization is used for stability.
+For Random Forest, the predict function of the Random Forest model is used to generate predictions.
+Model Evaluation (mse, r2_score):
+Two functions are provided to evaluate the performance of the model:
+mse: Calculates the Mean Squared Error (MSE) between true and predicted values.
+r2_score: Computes the R² score, which measures how well the model explains the variance in the data.
+All of these functions cumulate into the cross_validate() function. The cross_validate function automates the evaluation of either Locally Weighted Regression (LWR) or Random Forest by incorporating several key functions in the class, allowing for efficient model training, prediction, and performance assessment.
+Key Steps:
+K-Fold Cross-Validation: It splits the dataset into n_splits (default 10) folds, using each fold as a test set once, while training on the remaining data.
+Model Fitting: Calls fit to train either the LWR or Random Forest model on each fold.
+Prediction: Uses predict to generate predictions for the test data.
+Performance Metrics: Automatically calculates Mean Squared Error (MSE) and R² score for each fold using mse and r2_score.
+Averaging: The function averages the MSE and R² scores across all folds and prints the results.
+Key Benefit:
+Without cross_validate, you’d need to manually split the data, fit the model, predict, and calculate metrics for each fold. This function automates the entire process, making it fast and convenient to evaluate both models on the same dataset.
+Example: Cross-Validation for Locally Weighted Regression (LWR)
+lwr_model = PatricksModel(model_type='lwr', kernel='tricubic', f=1/3, iter=3, intercept=True)
+Example: Cross-Validation for Random Forest
+rf_model = PatricksModel(model_type='rf', rf_params={'n_estimators': 100, 'max_depth': 10})
+
 
 
 </body>
