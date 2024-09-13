@@ -26,6 +26,24 @@
     <p>The different kernel functions allow the user to test and choose the most accurate one.</p>
 
 
+    <h3>PatricksModel Class Constructor (<code>__init__</code>)</h3>
+    <p>The constructor accepts several parameters:</p>
+    <ul>
+        <li><b>model type</b>: Either 'lwr' for Locally Weighted Regression or 'rf' for Random Forest.</li>
+        <li><b>kernel type</b>: Used for LWR, can be 'tricubic', 'gaussian', etc.</li>
+        <li><b>neighborhood fraction (f)</b>: Fraction of the data used to determine nearby points in LWR.</li>
+        <li><b>number of iterations (iter)</b>: Number of iterations for the LWR fitting process.</li>
+        <li><b>include intercept</b>: Whether to include an intercept in the regression (True or False).</li>
+    </ul>
+    <p><b>Random Forest Parameters</b>: If the model type is 'rf', the constructor initializes a Random Forest with specific parameters:</p>
+    <ul>
+        <li><b>n_estimators</b>: The number of trees in the forest.</li>
+        <li><b>max_depth</b>: The maximum depth of the tree.</li>
+        <li><b>random_state</b>: Controls randomness for reproducibility.</li>
+    </ul>
+    <p>If no parameters are provided, default values are used for Random Forest.</p>
+
+
     
 
 
