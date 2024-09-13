@@ -25,38 +25,8 @@
     </ul>
     <p>The different kernel functions allow the user to test and choose the most accurate one.</p>
 
-    <h3>PatricksModel Class Constructor</h3>
-    <p>The constructor accepts parameters like model type ('lwr' or 'rf'), kernel type, neighborhood fraction (f), number of iterations, and whether to include an intercept.</p>
 
-    <h3>Model Fitting</h3>
-    <p>For LWR, the input features are scaled using MinMaxScaler. For Random Forest, the fit method is used from RandomForestRegressor.</p>
-
-    <h3>Weight Calculation</h3>
-    <p>This function calculates the weights for each training point relative to the new data point, applying the selected kernel function.</p>
-
-    <h3>Prediction</h3>
-    <p>For LWR, predictions are made by computing weights and solving for the regression coefficients via weighted least squares. For Random Forest, the predict function generates predictions from the trained model.</p>
-
-    <h3>Model Evaluation</h3>
-    <ul>
-        <li><b>mse</b>: Calculates the Mean Squared Error (MSE).</li>
-        <li><b>r2_score</b>: Computes the R² score.</li>
-    </ul>
-
-    <h3>Cross-Validate Function</h3>
-    <p>The cross_validate function automates evaluation by splitting the dataset into K-folds, training the model, generating predictions, and calculating performance metrics (MSE and R² score) for each fold. It automates the entire process, making it fast and convenient to evaluate models.</p>
-
-    <h3>Examples:</h3>
-
-    <h4>Cross-Validation for Locally Weighted Regression (LWR)</h4>
-    <pre><code>
-lwr_model = PatricksModel(model_type='lwr', kernel='tricubic', f=1/3, iter=3, intercept=True)
-    </code></pre>
-
-    <h4>Cross-Validation for Random Forest</h4>
-    <pre><code>
-rf_model = PatricksModel(model_type='rf', rf_params={'n_estimators': 100, 'max_depth': 10})
-    </code></pre>
+    
 
 
 </body>
