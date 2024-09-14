@@ -7,262 +7,266 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/atom-one-light.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
 
 </head>
 <body>
     <h1>Welcome to My GitHub Page</h1>
     <p>This is my personal website hosted on GitHub Pages!</p>
-    
-    <h2>About Me</h2>
-    <p>I am a senior majoring in Data Science, and I am super excited to learn advanced machine learning techniques in this course!</p>
-
-    <h2>Automated Cross-Validation for LWR and Random Forest</h2>
-
-    <p>My code displays a class that implements a Locally Weighted Regression (LWR), a regression technique that emphasizes local data points when making predictions. It also offers the option to compare this method with Random Forest by switching the model type.</p>
-
-    <p>The cross_validate function in the class incorporates all the other functions from the class for optimal automation. It brings together the fit, predict, mse, and r2_score functions to automate the K-fold cross-validation for Locally Weighted Regression (LWR) and Random Forest.</p>
-
-    <h3>Kernel Functions</h3>
-    <p>Before we get into the functions within the class, there are four kernel functions outside of the class that help create the weights for LWR:</p>
-    <ul>
-        <li>Gaussian</li>
-        <li>Tricubic</li>
-        <li>Epanechnikov</li>
-        <li>Quartic</li>
-    </ul>
-    <p>The different kernel functions allow the user to test and choose the most accurate one.</p>
-
-
-    <h3>PatricksModel Class Constructor (<code>__init__</code>)</h3>
-    <p>The constructor accepts several parameters:</p>
-    <ul>
-        <li><b>model type</b>: Either 'lwr' for Locally Weighted Regression or 'rf' for Random Forest.</li>
-        <li><b>kernel type</b>: Used for LWR, can be 'tricubic', 'gaussian', etc.</li>
-        <li><b>neighborhood fraction (f)</b>: Fraction of the data used to determine nearby points in LWR.</li>
-        <li><b>number of iterations (iter)</b>: Number of iterations for the LWR fitting process.</li>
-        <li><b>include intercept</b>: Whether to include an intercept in the regression (True or False).</li>
-        <li><b>tau</b>: Controls the bandwidth for scaling distances between points in LWR. Lower values give more weight to closer points.</li>
-        <li><b>alpha</b>: L2 regularization term for stabilizing the regression and preventing overfitting in LWR.</li>
-    </ul>
-    <p><b>Random Forest Parameters</b>: If the model type is 'rf', the constructor initializes a Random Forest with specific parameters:</p>
-    <ul>
-        <li><b>n_estimators</b>: The number of trees in the forest.</li>
-        <li><b>max_depth</b>: The maximum depth of the tree.</li>
-        <li><b>random_state</b>: Controls randomness for reproducibility.</li>
-    </ul>
-    <p>If no parameters are provided, default values are used for Random Forest.</p>
-
-    <h3>Kernel Selection (<code>_get_kernel</code>)</h3>
-    <p>This method returns the selected kernel function based on the initialization. It raises an error if an unknown kernel is passed.</p>
-    
-    <h3>Model Fitting (<code>fit</code>)</h3>
-    <p>For LWR, input features (<code>X</code>) are scaled using <code>MinMaxScaler</code> and the training data is stored. For Random Forest, the model fits the data using <code>RandomForestRegressor</code>.</p>
-    
-    <h3>Weight Calculation (<code>_weight_calculation</code>)</h3>
-    <p>This function calculates weights by computing Euclidean distances between training points and new data points, applying the kernel function, and scaling based on the fraction (<code>f</code>) of training samples.</p>
-    
-    <h3>Prediction (<code>predict</code>)</h3>
-    <p>For LWR, predictions are made by computing weights and solving for regression coefficients using weighted least squares, with L2 regularization. For Random Forest, it uses the built-in <code>predict</code> function.</p>
-    
-    <h3>Model Evaluation (<code>mse</code>, <code>r2_score</code>)</h3>
-    <p>The model performance is evaluated using:</p>
-    <ul>
-      <li><b>MSE</b>: Measures the average squared difference between true and predicted values.</li>
-      <li><b>R² score</b>: Explains how well the model captures the variance in the data.</li>
-    </ul>
-    
-    <h3>Cross-Validation (<code>cross_validate</code>)</h3>
-    <p>This function automates evaluation for both LWR and Random Forest by combining training, prediction, and performance measurement across K-folds.</p>
-    
-    <h4>Key Steps:</h4>
-    <ul>
-      <li><b>K-Fold Cross-Validation:</b> Splits the data into <code>n_splits</code> folds, training on each fold while testing on the remaining data.</li>
-      <li><b>Model Fitting:</b> Calls <code>fit</code> to train either LWR or Random Forest for each fold.</li>
-      <li><b>Prediction:</b> Uses <code>predict</code> to generate predictions for the test set.</li>
-      <li><b>Performance Metrics:</b> Automatically computes MSE and R² for each fold.</li>
-      <li><b>Averaging:</b> The MSE and R² scores are averaged across all folds and printed.</li>
-    </ul>
-    
-    <h4>Key Benefit:</h4>
-    <p>The <code>cross_validate</code> function simplifies the evaluation process by automating the training, prediction, and metric calculation, saving manual effort.</p>
-
-
-    <h3>Python Code for Locally Weighted Regression and Random Forest</h3>
-
-    <pre><code> class="language-python">
-    data = pd.read_csv('cars(2).csv') 
-    y = data['MPG'].values
-    X = data.drop(columns=['MPG']).values
-    
-    import numpy as np
-    from scipy.spatial.distance import cdist
-    from sklearn.preprocessing import MinMaxScaler
-    from sklearn.model_selection import KFold
-    from sklearn.metrics import mean_squared_error
-    from scipy.linalg import solve
-    
-    # Define kernel functions
-    def Gaussian(x):
-      return np.where(np.abs(x) > 4, 0, 1/(np.sqrt(2*np.pi)) * np.exp(-1/2 * x**2))
-    
-    def Tricubic(x):
-      return np.where(np.abs(x) > 1, 0, (1 - np.abs(x)**3)**3)
-    
-    def Epanechnikov(x):
-      return np.where(np.abs(x) > 1, 0, 3/4 * (1 - np.abs(x)**2))
-    
-    def Quartic(x):
-      return np.where(np.abs(x) > 1, 0, 15/16 * (1 - np.abs(x)**2)**2)
-    
-    class PatricksModel:
-      def __init__(self, model_type = 'lwr', kernel='tricubic', f=1/3, iter=3, intercept=True, rf_params = None):
-        self.model_type = model_type
-        self.kernel = kernel
-        self.f = f
-        self.iter = iter
-        self.intercept = intercept
-        self.scaler = MinMaxScaler()
-    
-        if self.model_type == 'rf':
-          if rf_params is None:
-            rf_params = {'n_estimators': 100, 'max_depth': 10, 'random_state': 123}
-          self.rf_model = RandomForestRegressor(**rf_params)
-    
-      def _get_kernel(self):
-        if self.kernel == 'gaussian':
-            return Gaussian
-        elif self.kernel == 'tricubic':
-            return Tricubic
-        elif self.kernel == 'epanechnikov':
-            return Epanechnikov
-        elif self.kernel == 'quartic':
-            return Quartic
-        else:
-            raise ValueError("Unknown kernel type")
-    
-      def fit(self, X, y):
-        if self.model_type == 'lwr':
-          self.xtrain_ = self.scaler.fit_transform(X)
-          self.ytrain_ = y.reshape(-1, 1)
-        elif self.model_type == 'rf':
-          self.rf_model.fit(X, y)
-    
-      def _weight_calculation(self, x, x_new, r):
-        distances = np.sqrt(np.sum((x - x_new) ** 2, axis=1))
-        h = np.sort(distances)[r]  
-    
-        kernel_fn = self._get_kernel()
-        weights = np.clip(distances / h, 0.0, 1.0)
-        return kernel_fn(weights)  
-    
-      def predict(self, x_new):
-        if self.model_type == 'lwr':
-    
-          x_new_scaled = self.scaler.transform(x_new)
-          number_training_samples = len(self.xtrain_)
-          number_neighbors = int(np.ceil(self.f * number_training_samples))
-          predictions = np.zeros(len(x_new_scaled))
-    
-          if self.intercept:
-              xtrain_1 = np.column_stack([np.ones((len(self.xtrain_), 1)), self.xtrain_])
-          else:
-              xtrain_1 = self.xtrain_
-    
-          delta = np.ones(number_training_samples)  
-    
-          for iteration in range(self.iter):
-              for i, new_data_point in enumerate(x_new_scaled):
-                  weights = self._weight_calculation(self.xtrain_, new_data_point, number_neighbors)
-    
-                  W = np.diag(delta).dot(np.diag(weights))
-    
-                  regularized_matrix = np.transpose(xtrain_1).dot(W).dot(xtrain_1)
-                  regularized_matrix += 0.0001 * np.eye(xtrain_1.shape[1])  # L2 regularization
-                  weighted_result = np.transpose(xtrain_1).dot(W).dot(self.ytrain_)
-                  coefficients = solve(regularized_matrix, weighted_result)
-    
+    <body class="bg-light text-dark">
+        <div class="container">
+            <h1 class="text-center">Welcome to My GitHub Page</h1>
+            <h2>About Me</h2>
+            <p>I am a senior majoring in Data Science, and I am super excited to learn advanced machine learning techniques in this course!</p>
+        
+            <h2>Automated Cross-Validation for LWR and Random Forest</h2>
+        
+            <p>My code displays a class that implements a Locally Weighted Regression (LWR), a regression technique that emphasizes local data points when making predictions. It also offers the option to compare this method with Random Forest by switching the model type.</p>
+        
+            <p>The cross_validate function in the class incorporates all the other functions from the class for optimal automation. It brings together the fit, predict, mse, and r2_score functions to automate the K-fold cross-validation for Locally Weighted Regression (LWR) and Random Forest.</p>
+        
+            <h3>Kernel Functions</h3>
+            <p>Before we get into the functions within the class, there are four kernel functions outside of the class that help create the weights for LWR:</p>
+            <ul>
+                <li>Gaussian</li>
+                <li>Tricubic</li>
+                <li>Epanechnikov</li>
+                <li>Quartic</li>
+            </ul>
+            <p>The different kernel functions allow the user to test and choose the most accurate one.</p>
+        
+        
+            <h3>PatricksModel Class Constructor (<code>__init__</code>)</h3>
+            <p>The constructor accepts several parameters:</p>
+            <ul>
+                <li><b>model type</b>: Either 'lwr' for Locally Weighted Regression or 'rf' for Random Forest.</li>
+                <li><b>kernel type</b>: Used for LWR, can be 'tricubic', 'gaussian', etc.</li>
+                <li><b>neighborhood fraction (f)</b>: Fraction of the data used to determine nearby points in LWR.</li>
+                <li><b>number of iterations (iter)</b>: Number of iterations for the LWR fitting process.</li>
+                <li><b>include intercept</b>: Whether to include an intercept in the regression (True or False).</li>
+                <li><b>tau</b>: Controls the bandwidth for scaling distances between points in LWR. Lower values give more weight to closer points.</li>
+                <li><b>alpha</b>: L2 regularization term for stabilizing the regression and preventing overfitting in LWR.</li>
+            </ul>
+            <p><b>Random Forest Parameters</b>: If the model type is 'rf', the constructor initializes a Random Forest with specific parameters:</p>
+            <ul>
+                <li><b>n_estimators</b>: The number of trees in the forest.</li>
+                <li><b>max_depth</b>: The maximum depth of the tree.</li>
+                <li><b>random_state</b>: Controls randomness for reproducibility.</li>
+            </ul>
+            <p>If no parameters are provided, default values are used for Random Forest.</p>
+        
+            <h3>Kernel Selection (<code>_get_kernel</code>)</h3>
+            <p>This method returns the selected kernel function based on the initialization. It raises an error if an unknown kernel is passed.</p>
+            
+            <h3>Model Fitting (<code>fit</code>)</h3>
+            <p>For LWR, input features (<code>X</code>) are scaled using <code>MinMaxScaler</code> and the training data is stored. For Random Forest, the model fits the data using <code>RandomForestRegressor</code>.</p>
+            
+            <h3>Weight Calculation (<code>_weight_calculation</code>)</h3>
+            <p>This function calculates weights by computing Euclidean distances between training points and new data points, applying the kernel function, and scaling based on the fraction (<code>f</code>) of training samples.</p>
+            
+            <h3>Prediction (<code>predict</code>)</h3>
+            <p>For LWR, predictions are made by computing weights and solving for regression coefficients using weighted least squares, with L2 regularization. For Random Forest, it uses the built-in <code>predict</code> function.</p>
+            
+            <h3>Model Evaluation (<code>mse</code>, <code>r2_score</code>)</h3>
+            <p>The model performance is evaluated using:</p>
+            <ul>
+              <li><b>MSE</b>: Measures the average squared difference between true and predicted values.</li>
+              <li><b>R² score</b>: Explains how well the model captures the variance in the data.</li>
+            </ul>
+            
+            <h3>Cross-Validation (<code>cross_validate</code>)</h3>
+            <p>This function automates evaluation for both LWR and Random Forest by combining training, prediction, and performance measurement across K-folds.</p>
+            
+            <h4>Key Steps:</h4>
+            <ul>
+              <li><b>K-Fold Cross-Validation:</b> Splits the data into <code>n_splits</code> folds, training on each fold while testing on the remaining data.</li>
+              <li><b>Model Fitting:</b> Calls <code>fit</code> to train either LWR or Random Forest for each fold.</li>
+              <li><b>Prediction:</b> Uses <code>predict</code> to generate predictions for the test set.</li>
+              <li><b>Performance Metrics:</b> Automatically computes MSE and R² for each fold.</li>
+              <li><b>Averaging:</b> The MSE and R² scores are averaged across all folds and printed.</li>
+            </ul>
+            
+            <h4>Key Benefit:</h4>
+            <p>The <code>cross_validate</code> function simplifies the evaluation process by automating the training, prediction, and metric calculation, saving manual effort.</p>
+        
+        
+            <h3>Python Code for Locally Weighted Regression and Random Forest</h3>
+        
+            <pre><code> class="language-python">
+            data = pd.read_csv('cars(2).csv') 
+            y = data['MPG'].values
+            X = data.drop(columns=['MPG']).values
+            
+            import numpy as np
+            from scipy.spatial.distance import cdist
+            from sklearn.preprocessing import MinMaxScaler
+            from sklearn.model_selection import KFold
+            from sklearn.metrics import mean_squared_error
+            from scipy.linalg import solve
+            
+            # Define kernel functions
+            def Gaussian(x):
+              return np.where(np.abs(x) > 4, 0, 1/(np.sqrt(2*np.pi)) * np.exp(-1/2 * x**2))
+            
+            def Tricubic(x):
+              return np.where(np.abs(x) > 1, 0, (1 - np.abs(x)**3)**3)
+            
+            def Epanechnikov(x):
+              return np.where(np.abs(x) > 1, 0, 3/4 * (1 - np.abs(x)**2))
+            
+            def Quartic(x):
+              return np.where(np.abs(x) > 1, 0, 15/16 * (1 - np.abs(x)**2)**2)
+            
+            class PatricksModel:
+              def __init__(self, model_type = 'lwr', kernel='tricubic', f=1/3, iter=3, intercept=True, rf_params = None):
+                self.model_type = model_type
+                self.kernel = kernel
+                self.f = f
+                self.iter = iter
+                self.intercept = intercept
+                self.scaler = MinMaxScaler()
+            
+                if self.model_type == 'rf':
+                  if rf_params is None:
+                    rf_params = {'n_estimators': 100, 'max_depth': 10, 'random_state': 123}
+                  self.rf_model = RandomForestRegressor(**rf_params)
+            
+              def _get_kernel(self):
+                if self.kernel == 'gaussian':
+                    return Gaussian
+                elif self.kernel == 'tricubic':
+                    return Tricubic
+                elif self.kernel == 'epanechnikov':
+                    return Epanechnikov
+                elif self.kernel == 'quartic':
+                    return Quartic
+                else:
+                    raise ValueError("Unknown kernel type")
+            
+              def fit(self, X, y):
+                if self.model_type == 'lwr':
+                  self.xtrain_ = self.scaler.fit_transform(X)
+                  self.ytrain_ = y.reshape(-1, 1)
+                elif self.model_type == 'rf':
+                  self.rf_model.fit(X, y)
+            
+              def _weight_calculation(self, x, x_new, r):
+                distances = np.sqrt(np.sum((x - x_new) ** 2, axis=1))
+                h = np.sort(distances)[r]  
+            
+                kernel_fn = self._get_kernel()
+                weights = np.clip(distances / h, 0.0, 1.0)
+                return kernel_fn(weights)  
+            
+              def predict(self, x_new):
+                if self.model_type == 'lwr':
+            
+                  x_new_scaled = self.scaler.transform(x_new)
+                  number_training_samples = len(self.xtrain_)
+                  number_neighbors = int(np.ceil(self.f * number_training_samples))
+                  predictions = np.zeros(len(x_new_scaled))
+            
                   if self.intercept:
-                      new_data_point_with_bias = np.concatenate([[1], new_data_point])
+                      xtrain_1 = np.column_stack([np.ones((len(self.xtrain_), 1)), self.xtrain_])
                   else:
-                      new_data_point_with_bias = new_data_point
-                  predictions[i] = np.dot(new_data_point_with_bias, coefficients)
-    
-                  
-              residuals = self.ytrain_.ravel() - np.dot(xtrain_1, coefficients).ravel()
-              s = np.median(np.abs(residuals))
-              delta = np.clip(residuals / (6.0 * s), -1, 1)
-              delta = (1 - delta ** 2) ** 2
-    
-          return predictions
-    
-        elif self.model_type == 'rf':
-          return self.rf_model.predict(x_new) #This is the Random Forest predict, not the classes predict
-    
-      def mse(self, y_true, y_pred):
-        return np.mean((y_true - y_pred) ** 2)
-    
-      def r2_score(self, y_true, y_pred):
-        ss_res = np.sum((y_true - y_pred) ** 2)
-        ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-        return 1 - (ss_res / ss_tot)
-    
-      def cross_validate(self, X, y, n_splits=10):
-    
-        kf = KFold(n_splits=n_splits, shuffle=True, random_state=123)
-        mse_scores = []
-        r2_scores = []
-    
-        for train_index, test_index in kf.split(X):
-            X_train, X_test = X[train_index], X[test_index]
-            y_train, y_test = y[train_index], y[test_index]
-    
-            self.fit(X_train, y_train)
-            y_pred = self.predict(X_test)
-    
-            mse = self.mse(y_test, y_pred)
-            r2 = self.r2_score(y_test, y_pred)
-    
-            mse_scores.append(mse)
-            r2_scores.append(r2)
-    
-        model_name = 'Locally Weighted Regression' if self.model_type == 'lwr' else 'Random Forest'
-    
-        print(f"10-fold Cross-Validated MSE for {model_name}: {np.mean(mse_scores)}")
-        print(f"10-fold Cross-Validated R² for {model_name}: {np.mean(r2_scores)}")
-    
-        return np.mean(mse_scores), np.mean(r2_scores)
-    </code></pre>
-
-
-    <h2>Locally Weighted Regression (LWR) Example</h2>
-    <p>In this example, we use the <code>PatricksModel</code> with the <b>Locally Weighted Regression (LWR)</b> model type. The kernel function is set to <code>epanechnikov</code>, and parameters <code>tau</code> and <code>alpha</code> are used for bandwidth and regularization, respectively.</p>
-    
-    <pre><code class="python">
-    # Example for Locally Weighted Regression (LWR)
-    model = PatricksModel(model_type='lwr', kernel='epanechnikov', f=1/3, iter=3, intercept=True, tau=1.0, alpha=0.0001, rf_params=None)
-    mse_lwr, r2_lwr = model.cross_validate(X, y, n_splits=10)
-    
-    # Output:
-    # 10-fold Cross-Validated MSE for Locally Weighted Regression: 16.63133598009823
-    # 10-fold Cross-Validated R² for Locally Weighted Regression: 0.717497642703326
-    </code></pre>
-    
-    <h2>Random Forest (RF) Example</h2>
-    <p>In this example, we use the <code>PatricksModel</code> with the <b>Random Forest</b> model type. The <code>rf_params</code> are set to <code>None</code>, meaning that the following default parameters are used:</p>
-    <ul>
-      <li><b>n_estimators</b>: 100</li>
-      <li><b>max_depth</b>: 10</li>
-      <li><b>random_state</b>: 123</li>
-    </ul>
-    <pre><code class="python">
-    # Example for Random Forest (RF)
-    model = PatricksModel(model_type='rf', rf_params=None)
-    mse_rf, r2_rf = model.cross_validate(X, y, n_splits=10)
-    
-    # Output:
-    # 10-fold Cross-Validated MSE for Random Forest: 18.704086932769613
-    # 10-fold Cross-Validated R² for Random Forest: 0.6845469485418489
-    </code></pre>
+                      xtrain_1 = self.xtrain_
+            
+                  delta = np.ones(number_training_samples)  
+            
+                  for iteration in range(self.iter):
+                      for i, new_data_point in enumerate(x_new_scaled):
+                          weights = self._weight_calculation(self.xtrain_, new_data_point, number_neighbors)
+            
+                          W = np.diag(delta).dot(np.diag(weights))
+            
+                          regularized_matrix = np.transpose(xtrain_1).dot(W).dot(xtrain_1)
+                          regularized_matrix += 0.0001 * np.eye(xtrain_1.shape[1])  # L2 regularization
+                          weighted_result = np.transpose(xtrain_1).dot(W).dot(self.ytrain_)
+                          coefficients = solve(regularized_matrix, weighted_result)
+            
+                          if self.intercept:
+                              new_data_point_with_bias = np.concatenate([[1], new_data_point])
+                          else:
+                              new_data_point_with_bias = new_data_point
+                          predictions[i] = np.dot(new_data_point_with_bias, coefficients)
+            
+                          
+                      residuals = self.ytrain_.ravel() - np.dot(xtrain_1, coefficients).ravel()
+                      s = np.median(np.abs(residuals))
+                      delta = np.clip(residuals / (6.0 * s), -1, 1)
+                      delta = (1 - delta ** 2) ** 2
+            
+                  return predictions
+            
+                elif self.model_type == 'rf':
+                  return self.rf_model.predict(x_new) #This is the Random Forest predict, not the classes predict
+            
+              def mse(self, y_true, y_pred):
+                return np.mean((y_true - y_pred) ** 2)
+            
+              def r2_score(self, y_true, y_pred):
+                ss_res = np.sum((y_true - y_pred) ** 2)
+                ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+                return 1 - (ss_res / ss_tot)
+            
+              def cross_validate(self, X, y, n_splits=10):
+            
+                kf = KFold(n_splits=n_splits, shuffle=True, random_state=123)
+                mse_scores = []
+                r2_scores = []
+            
+                for train_index, test_index in kf.split(X):
+                    X_train, X_test = X[train_index], X[test_index]
+                    y_train, y_test = y[train_index], y[test_index]
+            
+                    self.fit(X_train, y_train)
+                    y_pred = self.predict(X_test)
+            
+                    mse = self.mse(y_test, y_pred)
+                    r2 = self.r2_score(y_test, y_pred)
+            
+                    mse_scores.append(mse)
+                    r2_scores.append(r2)
+            
+                model_name = 'Locally Weighted Regression' if self.model_type == 'lwr' else 'Random Forest'
+            
+                print(f"10-fold Cross-Validated MSE for {model_name}: {np.mean(mse_scores)}")
+                print(f"10-fold Cross-Validated R² for {model_name}: {np.mean(r2_scores)}")
+            
+                return np.mean(mse_scores), np.mean(r2_scores)
+            </code></pre>
+        
+        
+            <h2>Locally Weighted Regression (LWR) Example</h2>
+            <p>In this example, we use the <code>PatricksModel</code> with the <b>Locally Weighted Regression (LWR)</b> model type. The kernel function is set to <code>epanechnikov</code>, and parameters <code>tau</code> and <code>alpha</code> are used for bandwidth and regularization, respectively.</p>
+            
+            <pre><code class="python">
+            # Example for Locally Weighted Regression (LWR)
+            model = PatricksModel(model_type='lwr', kernel='epanechnikov', f=1/3, iter=3, intercept=True, tau=1.0, alpha=0.0001, rf_params=None)
+            mse_lwr, r2_lwr = model.cross_validate(X, y, n_splits=10)
+            
+            # Output:
+            # 10-fold Cross-Validated MSE for Locally Weighted Regression: 16.63133598009823
+            # 10-fold Cross-Validated R² for Locally Weighted Regression: 0.717497642703326
+            </code></pre>
+            
+            <h2>Random Forest (RF) Example</h2>
+            <p>In this example, we use the <code>PatricksModel</code> with the <b>Random Forest</b> model type. The <code>rf_params</code> are set to <code>None</code>, meaning that the following default parameters are used:</p>
+            <ul>
+              <li><b>n_estimators</b>: 100</li>
+              <li><b>max_depth</b>: 10</li>
+              <li><b>random_state</b>: 123</li>
+            </ul>
+            <pre><code class="python">
+            # Example for Random Forest (RF)
+            model = PatricksModel(model_type='rf', rf_params=None)
+            mse_rf, r2_rf = model.cross_validate(X, y, n_splits=10)
+            
+            # Output:
+            # 10-fold Cross-Validated MSE for Random Forest: 18.704086932769613
+            # 10-fold Cross-Validated R² for Random Forest: 0.6845469485418489
+            </code></pre>
 
 
     
