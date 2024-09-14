@@ -48,43 +48,38 @@
     <p>If no parameters are provided, default values are used for Random Forest.</p>
 
     <h3>Kernel Selection (<code>_get_kernel</code>)</h3>
-    <p>Based on the kernel type specified during initialization, this method returns the appropriate kernel function. The available kernel options include:</p>
-    <ul>
-        <li><b>Gaussian</b></li>
-        <li><b>Tricubic</b></li>
-        <li><b>Epanechnikov</b></li>
-        <li><b>Quartic</b></li>
-    </ul>
-    <p>If an unknown kernel type is passed during initialization, the method raises an error, ensuring the user selects a valid kernel function.</p>
-
+    <p>This method returns the selected kernel function based on the initialization. It raises an error if an unknown kernel is passed.</p>
+    
+    <h3>Model Fitting (<code>fit</code>)</h3>
+    <p>For LWR, input features (<code>X</code>) are scaled using <code>MinMaxScaler</code> and the training data is stored. For Random Forest, the model fits the data using <code>RandomForestRegressor</code>.</p>
+    
     <h3>Weight Calculation (<code>_weight_calculation</code>)</h3>
-    <p>This function calculates the weights for each training point relative to the new data point. It computes the Euclidean distance between each training point and the new point, applies the selected kernel function, and scales the distances to generate weights. The number of neighbors considered is determined by the fraction (<code>f</code>) of total training samples.</p>
+    <p>This function calculates weights by computing Euclidean distances between training points and new data points, applying the kernel function, and scaling based on the fraction (<code>f</code>) of training samples.</p>
     
     <h3>Prediction (<code>predict</code>)</h3>
-    <p>In LWR, predictions are made by scaling the new input data, computing weights using the training data, and solving for the regression coefficients via weighted least squares. The function iterates through the training data to adjust the weights and recalculates residuals to improve predictions. L2 regularization is used for stability.</p>
-    <p>For Random Forest, the <code>predict</code> function of the Random Forest model is used to generate predictions.</p>
+    <p>For LWR, predictions are made by computing weights and solving for regression coefficients using weighted least squares, with L2 regularization. For Random Forest, it uses the built-in <code>predict</code> function.</p>
     
     <h3>Model Evaluation (<code>mse</code>, <code>r2_score</code>)</h3>
-    <p>Two functions are provided to evaluate the performance of the model:</p>
+    <p>The model performance is evaluated using:</p>
     <ul>
-        <li><b><code>mse</code></b>: Calculates the Mean Squared Error (MSE) between true and predicted values.</li>
-        <li><b><code>r2_score</code></b>: Computes the R² score, which measures how well the model explains the variance in the data.</li>
+      <li><b>MSE</b>: Measures the average squared difference between true and predicted values.</li>
+      <li><b>R² score</b>: Explains how well the model captures the variance in the data.</li>
     </ul>
     
-    <h3>Cross-Validate Function (<code>cross_validate</code>)</h3>
-    <p>All of these functions cumulate into the <code>cross_validate</code> function. This function automates the evaluation of either Locally Weighted Regression (LWR) or Random Forest by incorporating several key functions in the class, allowing for efficient model training, prediction, and performance assessment.</p>
+    <h3>Cross-Validation (<code>cross_validate</code>)</h3>
+    <p>This function automates evaluation for both LWR and Random Forest by combining training, prediction, and performance measurement across K-folds.</p>
     
     <h4>Key Steps:</h4>
     <ul>
-        <li><b>K-Fold Cross-Validation:</b> It splits the dataset into <code>n_splits</code> (default 10) folds, using each fold as a test set once, while training on the remaining data.</li>
-        <li><b>Model Fitting:</b> Calls <code>fit</code> to train either the LWR or Random Forest model on each fold.</li>
-        <li><b>Prediction:</b> Uses <code>predict</code> to generate predictions for the test data.</li>
-        <li><b>Performance Metrics:</b> Automatically calculates Mean Squared Error (MSE) and R² score for each fold using <code>mse</code> and <code>r2_score</code>.</li>
-        <li><b>Averaging:</b> The function averages the MSE and R² scores across all folds and prints the results.</li>
+      <li><b>K-Fold Cross-Validation:</b> Splits the data into <code>n_splits</code> folds, training on each fold while testing on the remaining data.</li>
+      <li><b>Model Fitting:</b> Calls <code>fit</code> to train either LWR or Random Forest for each fold.</li>
+      <li><b>Prediction:</b> Uses <code>predict</code> to generate predictions for the test set.</li>
+      <li><b>Performance Metrics:</b> Automatically computes MSE and R² for each fold.</li>
+      <li><b>Averaging:</b> The MSE and R² scores are averaged across all folds and printed.</li>
     </ul>
     
     <h4>Key Benefit:</h4>
-    <p>Without <code>cross_validate</code>, you’d need to manually split the data, fit the model, predict, and calculate metrics for each fold. This function automates the entire process, making it fast and convenient to evaluate both models on the same dataset.</p>
+    <p>The <code>cross_validate</code> function simplifies the evaluation process by automating the training, prediction, and metric calculation, saving manual effort.</p>
 
 
     <h3>Python Code for Locally Weighted Regression and Random Forest</h3>
