@@ -234,6 +234,36 @@
     </code></pre>
 
 
+    <h2>Locally Weighted Regression (LWR) Example</h2>
+    <p>In this example, we use the <code>PatricksModel</code> with the <b>Locally Weighted Regression (LWR)</b> model type. The kernel function is set to <code>epanechnikov</code>, and parameters <code>tau</code> and <code>alpha</code> are used for bandwidth and regularization, respectively.</p>
+    
+    <pre><code class="python">
+    # Example for Locally Weighted Regression (LWR)
+    model = PatricksModel(model_type='lwr', kernel='epanechnikov', f=1/3, iter=3, intercept=True, tau=1.0, alpha=0.0001, rf_params=None)
+    mse_lwr, r2_lwr = model.cross_validate(X, y, n_splits=10)
+    
+    # Output:
+    # 10-fold Cross-Validated MSE for Locally Weighted Regression: 16.63133598009823
+    # 10-fold Cross-Validated R² for Locally Weighted Regression: 0.717497642703326
+    </code></pre>
+    
+    <h2>Random Forest (RF) Example</h2>
+    <p>In this example, we use the <code>PatricksModel</code> with the <b>Random Forest</b> model type. The <code>rf_params</code> are set to <code>None</code>, meaning that the following default parameters are used:</p>
+    <ul>
+      <li><b>n_estimators</b>: 100</li>
+      <li><b>max_depth</b>: 10</li>
+      <li><b>random_state</b>: 123</li>
+    </ul>
+    <pre><code class="python">
+    # Example for Random Forest (RF)
+    model = PatricksModel(model_type='rf', rf_params=None)
+    mse_rf, r2_rf = model.cross_validate(X, y, n_splits=10)
+    
+    # Output will vary depending on the data, but defaults to:
+    # Default Parameters used: {'n_estimators': 100, 'max_depth': 10, 'random_state': 123}
+    </code></pre>
+
+
     
 
 
