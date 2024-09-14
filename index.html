@@ -38,6 +38,8 @@
         <li><b>neighborhood fraction (f)</b>: Fraction of the data used to determine nearby points in LWR.</li>
         <li><b>number of iterations (iter)</b>: Number of iterations for the LWR fitting process.</li>
         <li><b>include intercept</b>: Whether to include an intercept in the regression (True or False).</li>
+        <li><b>tau</b>: Controls the bandwidth for scaling distances between points in LWR. Lower values give more weight to closer points.</li>
+        <li><b>alpha</b>: L2 regularization term for stabilizing the regression and preventing overfitting in LWR.</li>
     </ul>
     <p><b>Random Forest Parameters</b>: If the model type is 'rf', the constructor initializes a Random Forest with specific parameters:</p>
     <ul>
