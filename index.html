@@ -259,8 +259,9 @@
     model = PatricksModel(model_type='rf', rf_params=None)
     mse_rf, r2_rf = model.cross_validate(X, y, n_splits=10)
     
-    # Output will vary depending on the data, but defaults to:
-    # Default Parameters used: {'n_estimators': 100, 'max_depth': 10, 'random_state': 123}
+    # Output:
+    # 10-fold Cross-Validated MSE for Random Forest: 18.704086932769613
+    # 10-fold Cross-Validated R² for Random Forest: 0.6845469485418489
     </code></pre>
 
 
