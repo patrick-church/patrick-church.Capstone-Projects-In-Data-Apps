@@ -241,6 +241,25 @@
             <h2>Locally Weighted Regression (LWR) Example</h2>
             <p>In this example, we use the <code>PatricksModel</code> with the <b>Locally Weighted Regression (LWR)</b> model type. The kernel function is set to <code>epanechnikov</code>, and parameters <code>tau</code> and <code>alpha</code> are used for bandwidth and regularization, respectively.</p>
             
+            <p>When using LWR, you can customize the following parameters:</p>
+            <ul>
+              <li><b>kernel type</b>: Choose the kernel function to use for weighting data points. Options include:
+                <ul>
+                  <li><code>'tricubic'</code></li>
+                  <li><code>'gaussian'</code></li>
+                  <li><code>'epanechnikov'</code></li>
+                  <li><code>'quartic'</code></li>
+                </ul>
+              </li>
+              <li><b>neighborhood fraction (<code>f</code>)</b>: Controls the fraction of nearby data points to consider in the weighting process. Lower values of <code>f</code> mean that fewer, closer points will influence predictions.</li>
+              <li><b>iterations (<code>iter</code>)</b>: Specifies the number of iterations to adjust the weights and improve predictions during the LWR fitting process. A higher <code>iter</code> value leads to more refinement.</li>
+              <li><b>tau</b>: Controls the bandwidth for scaling distances between points. A lower <code>tau</code> value gives more weight to closer points, making the model more sensitive to local changes.</li>
+              <li><b>alpha</b>: Specifies the L2 regularization term, which helps prevent overfitting by applying a penalty to large coefficients. A higher <code>alpha</code> value will enforce stronger regularization.</li>
+            </ul>
+            
+            <p>Here, we use <code>kernel='epanechnikov'</code>, <code>f=1/3</code>, <code>iter=3</code>, <code>tau=1.0</code>, and <code>alpha=0.0001</code>.</p>
+
+            
             <pre><code class="python">
             # Example for Locally Weighted Regression (LWR)
             model = PatricksModel(model_type='lwr', kernel='epanechnikov', f=1/3, iter=3, intercept=True, tau=1.0, alpha=0.0001, rf_params=None)
