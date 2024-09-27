@@ -206,6 +206,26 @@ class Patricks_Gradient_Boosted_LWR:
     </div>
 
     <div class="section">
+    <h2>Application: Locally Weighted Regression with Gradient Boosting</h2>
+    <p>
+        The following examples demonstrate the application of the <strong>Patricks_Gradient_Boosted_LWR</strong> class, which implements 
+        locally weighted regression (LWR) enhanced with gradient boosting. By leveraging multiple iterations of model fitting on residuals 
+        and choosing the appropriate scaling method, we aim to show how LWR can perform competitively against models like XGBoost.
+    </p>
+    <p>
+        In these examples, we compare the performance of LWR with gradient boosting using three different data scaling techniques:
+        <strong>StandardScaler</strong>, <strong>MinMaxScaler</strong>, and <strong>QuantileScaler</strong>. Each standardization method affects 
+        how the model weights and processes the data, influencing its predictive accuracy. We will show how the results differ and, in some cases, 
+        how LWR can even outperform the XGBoost model when paired with the right scaling technique.
+    </p>
+    <p>
+        Below, we present the results of cross-validation using the specified scalers, detailing the mean squared error (MSE) for each, 
+        along with comparisons to XGBoost. These examples illustrate the effectiveness of gradient boosting in locally weighted regression and highlight 
+        the importance of selecting an appropriate scaling method for optimal performance.
+    </p>
+    </div>
+
+    <div class="section">
         <h2>Cross-Validation Using StandardScaler</h2>
         <pre><code class="language-python">model.cross_validate(X, y, 'standard', kfold_splits=10, boost_rounds=3)</code></pre>
         <p>When performing cross-validation using <strong>StandardScaler</strong>, we observe that the locally weighted regression (LWR) model performs significantly worse compared to the <strong>XGBoost</strong> model.</p>
