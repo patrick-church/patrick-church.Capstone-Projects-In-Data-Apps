@@ -275,11 +275,15 @@ class Patricks_Gradient_Boosted_LWR:
 
 
     <div class="section">
-    <h2>Comparing Locally Weighted Regression Approaches</h2>
+    <h2>Comparing Locally Weighted Regression Approaches on the Iris Dataset</h2>
     <p>
-        In this section, we will compare two different approaches to locally weighted regression: 
-        my custom <strong>Patricks_Gradient_Boosted_LWR</strong> class and the <strong>Calvin Chi's Locally Weighted Logistic Regression</strong> method. 
-        Both approaches are applied to the same dataset, but they differ in how they handle classification.
+        In this section, we will compare two different approaches to locally weighted regression using the well-known 
+        <strong>Iris dataset</strong> from <strong>sklearn</strong>. This dataset contains 150 samples of iris flowers, with three different species as the target variable. 
+        Our goal is to classify these species using locally weighted regression techniques.
+    </p>
+    <p>
+        We will compare my custom <strong>Patricks_Gradient_Boosted_LWR</strong> class and the <strong>Calvin Chi's Locally Weighted Logistic Regression</strong> method, 
+        both applied to this dataset. However, the two methods handle the classification problem differently due to the multiclass nature of the target variable.
     </p>
     <p>
         My approach, implemented in the <strong>Patricks_Gradient_Boosted_LWR</strong> class, uses <strong>Softmax</strong> to predict all three classes in the target variable at once. 
@@ -287,11 +291,11 @@ class Patricks_Gradient_Boosted_LWR:
     </p>
     <p>
         On the other hand, Calvin Chi's locally weighted logistic regression method is designed specifically for binary classification. 
-        As a result, to handle the multiclass nature of our dataset, we run his method twice. In the first run, we compare the first class in the target variable to the second class. 
+        As a result, to handle the multiclass nature of the Iris dataset, we run his method twice. In the first run, we compare the first class in the target variable to the second class. 
         Then, in the second run, we compare the first class to the third class. This binary classification approach allows us to break down the multiclass problem into a series of binary comparisons.
     </p>
     <p>
-        By comparing these two approaches, we can explore the strengths and limitations of each method when applied to the same dataset, 
+        By comparing these two approaches on the Iris dataset, we can explore the strengths and limitations of each method when applied to the same dataset, 
         as well as how they handle multiclass target variables differently. The results will showcase how my method leverages Softmax for efficient multiclass classification, 
         while Calvin Chi's method handles multiclass problems through iterative binary classification comparisons.
     </p>
