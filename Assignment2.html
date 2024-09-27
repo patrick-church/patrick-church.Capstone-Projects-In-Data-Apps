@@ -232,6 +232,20 @@ class Patricks_Gradient_Boosted_LWR:
         <p>These results highlight that choosing the appropriate scaling method is crucial for locally weighted regression, especially when competing with models like XGBoost.</p>
     </div>
 
+    <div class="section">
+        <h2>Cross-Validation Using QuantileScaler</h2>
+        <pre><code class="language-python">model.cross_validate(X, y, 'quantile', kfold_splits=10, boost_rounds=3)</code></pre>
+        <p>When using <strong>QuantileScaler</strong> with this set of parameters—<strong>kfold_splits=10</strong>, and <strong>boost_rounds=3</strong>—the locally weighted regression (LWR) model <strong>outperforms XGBoost</strong> in terms of Mean Squared Error (MSE).</p>
+        <p>The results are as follows:</p>
+        <ul>
+            <li><strong>The Cross-validated Mean Squared Error for Locally Weighted Regression:</strong> 20.709935807739438</li>
+            <li><strong>The Cross-validated Mean Squared Error for XGBRegressor:</strong> 21.093093221361816</li>
+        </ul>
+        <p>This result demonstrates that with the appropriate scaling method, specifically <strong>QuantileScaler</strong>, locally weighted regression can outperform a well-known model like XGBoost in this case. The ability to transform features into a normal or uniform distribution appears to benefit the locally weighted regression model, leading to a lower error than XGBoost's gradient-boosting approach.</p>
+        <p>These results emphasize the importance of choosing the right parameters and scaling methods to make locally weighted regression a competitive alternative to XGBoost.</p>
+    </div>
+
+
 
 
 
