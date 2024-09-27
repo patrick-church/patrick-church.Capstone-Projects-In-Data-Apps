@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gradient Boosting in Locally Weighted Regression</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-python.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,12 +15,8 @@
         h1, h2 {
             color: #2E86C1;
         }
-        p, ul {
+        p {
             font-size: 1.1em;
-            margin-bottom: 20px; /* Added more space between paragraphs and lists */
-        }
-        ul li {
-            margin-bottom: 10px;
         }
         .header {
             background-color: #f4f4f4;
@@ -25,7 +24,12 @@
             border-radius: 10px;
         }
         .section {
-            margin-top: 40px; /* Increased space between sections */
+            margin-top: 20px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -82,7 +86,102 @@
         </ul>
     </div>
 
-</body>
-</html>
+    <div class="section">
+        <h2>Python Class: Patricks_Gradient_Boosted_LWR</h2>
+        <pre><code class="language-python">
+            
+class Patricks_Gradient_Boosted_LWR:
+    def __init__(self, kernel=Gaussian, tau=0.03):
+        self.kernel = kernel
+        self.tau = tau
+        self._is_fitted = False  # A flag to track if the model is fitted
+
+    def fit(self, x, y):
+        self.xtrain_ = x
+        self.yhat_ = y
+        self._is_fitted = True  # Set the flag to True after fitting the model
+
+    def is_fitted(self):
+        if not self._is_fitted:
+            raise ValueError("This Lowess_2 instance is not fitted yet. Call 'fit' with appropriate arguments before using this method.")
+
+    def predict(self, x_new):
+        # Check if the model is fitted
+        self.is_fitted()
+
+        x = self.xtrain_
+        y = self.yhat_
+        lm = Ridge(alpha=0.001)
+        w = weight_function(x, x_new, self.kernel, self.tau)
+
+        if np.isscalar(x_new):
+            lm.fit(np.diag(w) @ (x.reshape(-1, 1)), np.diag(w) @ (y.reshape(-1, 1)))
+            yest = lm.predict([[x_new]])[0][0]
+        else:
+            n = len(x_new)
+            yest_test = []
+            for i in range(n):
+                lm.fit(np.diag(w[:, i]) @ x, np.diag(w[:, i]) @ y)
+                yest_test.append(lm.predict(x_new[i].reshape(1, -1)))
+        return np.array(yest_test).reshape(-1, 1)
+
+    def boosted_lwr_more(self, x, y, xnew, n_boosts=3):
+        model1 = Patricks_Gradient_Boosted_LWR(kernel=Gaussian, tau=0.35)
+        model1.fit(x, y)
+        predictions = model1.predict(xnew)
+
+        residuals = y - model1.predict(x).ravel()
+
+        for i in range(1, n_boosts):
+            if i % 2 == 0:
+                model = Patricks_Gradient_Boosted_LWR(kernel=Gaussian, tau=0.35)
+            else:
+                model = Patricks_Gradient_Boosted_LWR(kernel=Tricubic, tau=0.23)
+
+            model.fit(x, residuals)
+            predictions += model.predict(xnew)
+            residuals -= model.predict(x).ravel()
+
+        return predictions
+
+    def cross_validate(self, X, y, scaling_method='standard', kfold_splits=10, seed=42, boost_rounds=3):
+
+        if scaling_method == 'minmax':
+            scaler = MinMaxScaler()
+        elif scaling_method == 'quantile':
+            scaler = QuantileTransformer(n_quantiles=900)
+        else:
+            scaler = StandardScaler()
+
+        mse_lwr_results = []
+        mse_xgb_results = []
+
+        kfold = KFold(n_splits=kfold_splits, shuffle=True, random_state=seed)
+        xgb_model = XGBRegressor(objective='reg:squarederror', n_estimators=100, reg_lambda=20, alpha=1, gamma=10, max_depth=7)
+
+        for train_idx, test_idx in kfold.split(X):
+            X_train = X[train_idx]
+            y_train = y[train_idx]
+            y_test = y[test_idx]
+            X_test = X[test_idx]
+
+            X_train = scaler.fit_transform(X_train)
+            X_test = scaler.transform(X_test)
+
+            y_pred_lwr = self.boosted_lwr_more(X_train, y_train, X_test, n_boosts=boost_rounds)
+
+            xgb_model.fit(X_train, y_train)
+            y_pred_xgb = xgb_model.predict(X_test)
+
+            mse_lwr_results.append(mean_squared_error(y_test, y_pred_lwr))
+            mse_xgb_results.append(mean_squared_error(y_test, y_pred_xgb))
+
+        print(f'The Cross-validated Mean Squared Error for Locally Weighted Regression is: {np.mean(mse_lwr_results)}')
+        print(f'The Cross-validated Mean Squared Error for XGBRegressor is: {np.mean(mse_xgb_results)}')
+        </code></pre>
+    </div>
+
+
+
 </body>
 </html>
