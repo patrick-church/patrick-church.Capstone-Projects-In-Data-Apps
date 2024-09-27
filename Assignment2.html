@@ -302,6 +302,78 @@ class Patricks_Gradient_Boosted_LWR:
     </p>
     </div>
 
+    <div class="section">
+    <h2>Patricks_LWLR: Locally Weighted Logistic Regression</h2>
+    <p>
+        The <strong>Patricks_LWLR</strong> class is a custom implementation of locally weighted logistic regression designed to handle multiclass classification problems. 
+        This model applies logistic regression with weighting based on a kernel function, which determines the contribution of training points based on their distance 
+        from the prediction point. The model is flexible, allowing the user to specify the <strong>kernel</strong> type, the <strong>tau</strong> parameter (which controls the bandwidth of the kernel), 
+        and the number of target classes.
+    </p>
+    <p>
+        The central feature of the class is the <strong>cross_validate</strong> method, which allows the user to evaluate the model's performance through cross-validation. 
+        The user has full control over the <strong>scaling method</strong>, the number of <strong>cross-validation folds</strong>, and the option to visualize the results using a 
+        2D <strong>PCA scatter plot</strong>. During cross-validation, the method returns key classification metrics such as <strong>accuracy</strong>, <strong>precision</strong>, 
+        <strong>recall</strong>, and the <strong>F1-score</strong>. Additionally, confusion matrix visualizations and bar charts displaying cross-validation metrics are generated to provide a complete overview of the model's performance.
+    </p>
+
+    <h3>Key Features of the cross_validate Method</h3>
+    <pre><code class="language-python">
+def cross_validate(self, X, y, scaling_method='standard', kfold_splits=5, seed=42, visualize_pca=False):
+    """
+    Parameters:
+    - scaling_method (str): Choose between 'standard', 'minmax', or 'quantile' scaling for the features.
+    - kfold_splits (int): The number of folds for cross-validation (default is 5).
+    - visualize_pca (bool): If True, a 2D PCA scatter plot of true vs predicted labels is generated.
+
+    Returns:
+    - Dictionary of average classification metrics: 'accuracy', 'precision', 'recall', 'f1_score'.
+    """
+    # Scaling
+    if scaling_method == 'minmax':
+        scaler = MinMaxScaler()
+    elif scaling_method == 'quantile':
+        scaler = QuantileTransformer(n_quantiles=900)
+    else:
+        scaler = StandardScaler()
+
+    # Cross-validation and metric collection...
+    </code></pre>
+
+    <p>
+        The <strong>cross_validate</strong> method is highly flexible and user-friendly. 
+        Users can choose from various scaling methods, such as <strong>StandardScaler</strong>, <strong>MinMaxScaler</strong>, or <strong>QuantileScaler</strong>, 
+        to ensure that the features are scaled appropriately before fitting the model. The number of cross-validation folds is also customizable, 
+        with the default set to 5 folds. The method evaluates the model by computing metrics like accuracy, precision, recall, and F1-score across all folds.
+    </p>
+
+    <h3>Visualization Options</h3>
+    <p>
+        The method also includes an option for users to visualize the results of their classification by setting the <strong>visualize_pca</strong> parameter to True. 
+        When enabled, the method applies <strong>Principal Component Analysis (PCA)</strong> to reduce the dataset to two dimensions and creates a scatter plot showing the true 
+        versus predicted labels. This visualization helps users understand the model's behavior in a more intuitive, graphical way.
+    </p>
+
+    <h3>Metric Outputs</h3>
+    <p>
+        After running cross-validation, the method generates a confusion matrix to visualize classification performance and provides bar charts that illustrate 
+        the accuracy, precision, recall, and F1-score across all folds. These visualizations help users assess how well the model is performing across different 
+        classes and folds.
+    </p>
+
+    <p>Here’s an example of the <strong>cross_validate</strong> method in action:</p>
+    <pre><code class="language-python">
+# Example usage of cross_validate method
+metrics = model.cross_validate(X, y, scaling_method='quantile', kfold_splits=5, visualize_pca=True)
+print(metrics)
+    </code></pre>
+
+    <p>
+        In this example, the user has chosen <strong>QuantileScaler</strong> for scaling, specified 5 cross-validation folds, and enabled PCA visualization. 
+        The model returns a dictionary containing average classification metrics for the folds, while also producing visualizations for further analysis.
+    </p>
+</div>
+
 
 
 
