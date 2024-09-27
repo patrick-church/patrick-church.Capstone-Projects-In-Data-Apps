@@ -181,6 +181,30 @@ class Patricks_Gradient_Boosted_LWR:
         </code></pre>
     </div>
 
+    <div class="section">
+        <h2>Function Summaries</h2>
+        <ul>
+            <li><strong>__init__(self, kernel=Gaussian, tau=0.03):</strong>
+                This is the constructor that initializes the class. It sets the kernel (defaulting to Gaussian) and the tau parameter (a bandwidth parameter controlling the weight function). It also sets a flag, _is_fitted, to False, indicating that the model has not yet been trained.
+            </li>
+            <li><strong>fit(self, x, y):</strong>
+                This method trains the model by storing the training data (x for features, y for target values) and setting the _is_fitted flag to True. It does not perform any actual fitting, but prepares the model with the data for later predictions.
+            </li>
+            <li><strong>is_fitted(self):</strong>
+                This is a helper function that checks if the model has been fitted (trained). If the model has not been fitted, it raises a ValueError, ensuring that predictions are only made after the model has been trained.
+            </li>
+            <li><strong>predict(self, x_new):</strong>
+                This method predicts the target values for new data (x_new) using the fitted model. It checks if the model is fitted using is_fitted(), computes the weights using a kernel function, and then applies ridge regression to make the predictions. If the input is scalar, it predicts a single value; otherwise, it predicts for multiple data points.
+            </li>
+            <li><strong>boosted_lwr_more(self, x, y, xnew, n_boosts=3):</strong>
+                This function implements gradient boosting for locally weighted regression. It trains the model (Patricks_Gradient_Boosted_LWR) on the residuals in multiple boosting rounds (controlled by the n_boosts argument). Each boosting step fits a new model on the residual errors from the previous prediction and updates the overall prediction.
+            </li>
+            <li><strong>cross_validate(self, X, y, scaling_method='standard', kfold_splits=10, seed=42, boost_rounds=3):</strong>
+                This function performs 10-fold cross-validation on the dataset, comparing the locally weighted regression model against the XGBoost model. It allows the user to choose between different scaling methods (StandardScaler, MinMaxScaler, QuantileScaler) and specify the number of boosting rounds (boost_rounds). The function computes the Mean Squared Error (MSE) for both models and prints the results.
+            </li>
+        </ul>
+    </div>
+
 
 
 </body>
