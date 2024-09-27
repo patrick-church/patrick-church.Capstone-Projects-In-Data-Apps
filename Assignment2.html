@@ -12,8 +12,12 @@
         h1, h2 {
             color: #2E86C1;
         }
-        p {
+        p, ul {
             font-size: 1.1em;
+            margin-bottom: 20px; /* Added more space between paragraphs and lists */
+        }
+        ul li {
+            margin-bottom: 10px;
         }
         .header {
             background-color: #f4f4f4;
@@ -21,7 +25,7 @@
             border-radius: 10px;
         }
         .section {
-            margin-top: 20px;
+            margin-top: 40px; /* Increased space between sections */
         }
     </style>
 </head>
@@ -47,7 +51,6 @@
             scaled before running the regression models.
         </p>
 
-        
         <h2>Key Features:</h2>
         <ul>
             <li><strong>User-Controlled Gradient Boosting:</strong>
@@ -55,7 +58,6 @@
                 allows the user to customize how much the model iteratively refines the residuals through multiple boosting steps.
             </li>
 
-            
             <li><strong>Choice of Standardization Method:</strong>
                 The <code>cross_validate</code> function allows the user to choose between three different data standardization methods:
                 <ul>
@@ -66,14 +68,12 @@
                 The comparison between these scalers is a core feature of the class, as it shows how different data transformations impact model performance.
             </li>
 
-            
             <li><strong>Cross-Validation and Model Comparison:</strong>
                 The class uses <strong>10-fold cross-validation</strong> to train and test the locally weighted regression model. It compares the performance of the 
                 <strong>Locally Weighted Regression</strong> model against the <strong>eXtreme Gradient Boosting (XGBoost)</strong> model. The cross-validation function computes the 
                 <strong>Mean Squared Error (MSE)</strong> for both models and prints the results for direct comparison.
             </li>
 
-            
             <li><strong>Competing with XGBoost:</strong>
                 One of the primary goals of this class is to demonstrate that <strong>Locally Weighted Regression</strong> (when enhanced with gradient boosting) 
                 can compete with the widely used <strong>XGBoost</strong> model. By refining the predictions through boosting and scaling the data appropriately, 
@@ -82,6 +82,7 @@
         </ul>
     </div>
 
-
+</body>
+</html>
 </body>
 </html>
