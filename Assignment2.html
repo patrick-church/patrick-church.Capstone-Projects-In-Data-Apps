@@ -219,6 +219,21 @@ class Patricks_Gradient_Boosted_LWR:
     </div>
 
 
+    <div class="section">
+        <h2>Cross-Validation Using MinMaxScaler</h2>
+        <pre><code class="language-python">model.cross_validate(X, y, 'minmax', kfold_splits=10, boost_rounds=3)</code></pre>
+        <p>When using <strong>MinMaxScaler</strong> for cross-validation, the results for the locally weighted regression (LWR) model are even worse compared to XGBoost.</p>
+        <p>The results are as follows:</p>
+        <ul>
+            <li><strong>The Cross-validated Mean Squared Error for Locally Weighted Regression:</strong> 43.774658824515555</li>
+            <li><strong>The Cross-validated Mean Squared Error for XGBRegressor:</strong> 21.093093221361816</li>
+        </ul>
+        <p>In this case, the <strong>MinMaxScaler</strong> performs poorly for locally weighted regression, leading to the highest Mean Squared Error (MSE) among the scalers. The XGBoost model, on the other hand, maintains its performance with a much lower MSE, showing that tree-based models like XGBoost are less sensitive to scaling methods.</p>
+        <p>These results highlight that choosing the appropriate scaling method is crucial for locally weighted regression, especially when competing with models like XGBoost.</p>
+    </div>
+
+
+
 
 
 </body>
