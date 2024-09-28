@@ -560,7 +560,110 @@ ModelLWLR.cross_validate(x, y, kfold_splits=5, visualize_pca=True)
         5-fold cross-validation. The <code>visualize_pca=True</code> option was enabled to generate 2D PCA plots for visualizing the 
         separation between the true and predicted classes.
     </p>
-</div>
+    </div>
+
+    <div class="section">
+    <h2>Chi's Implementation of Locally Weighted Logistic Regression</h2>
+    <p>
+        The following implementation of <strong>Chi's Locally Weighted Logistic Regression</strong> demonstrates how binary classification is applied to the Iris dataset.
+        Since this implementation handles only binary classification targets, we run two different versions:
+    </p>
+    <ul>
+        <li><strong>Setosa vs Versicolor:</strong> This model compares Setosa (class 0) to Versicolor (class 1).</li>
+        <li><strong>Setosa vs Virginica:</strong> This model compares Setosa (class 0) to Virginica (class 2). The target labels are remapped to 0 and 1 for binary classification.</li>
+    </ul>
+    <p>
+        Both versions of the model utilize <strong>Principal Component Analysis (PCA)</strong> for dimensionality reduction, allowing us to visualize the decision boundary in 2D space. 
+        Each target set is processed independently, applying locally weighted logistic regression with Gaussian weights.
+    </p>
+
+    <h3>Code for Chi's Locally Weighted Logistic Regression</h3>
+    <pre><code class="language-python">
+class_mapping = {'Setosa': 0, 'Versicolor': 1, 'Virginica': 2}
+flowers['variety_int'] = flowers['variety'].map(class_mapping)
+
+data_sv = flowers[flowers['variety_int'].isin([0, 1])]
+feature_columns = ['sepal.length', 'sepal.width', 'petal.length', 'petal.width']
+X_sv = data_sv[feature_columns].values
+y_sv = data_sv['variety_int'].values
+
+data_svi = flowers[flowers['variety_int'].isin([0, 2])]
+label_mapping = {0: 0, 2: 1}
+data_svi['label'] = data_svi['variety_int'].map(label_mapping)
+X_svi = data_svi[feature_columns].values
+y_svi = data_svi['label'].values
+
+pca_sv = PCA(n_components=2)
+X_sv_pca = pca_sv.fit_transform(X_sv)
+
+pca_svi = PCA(n_components=2)
+X_svi_pca = pca_svi.fit_transform(X_svi)
+
+class locally_weighted_logistic_regression(object):
+    def __init__(self, tau, reg=0.0001, threshold=1e-6):
+        self.reg = reg
+        self.threshold = threshold
+        self.tau = tau
+        self.theta = None
+
+    def weights(self, x_train, x):
+        sq_diff = (x_train - x) ** 2
+        norm_sq = sq_diff.sum(axis=1)
+        return np.exp(-norm_sq / (2 * self.tau ** 2))
+
+    def logistic(self, x_train):
+        return 1 / (1 + np.exp(-x_train.dot(self.theta)))
+
+    def train(self, x_train, y_train, x):
+        self.w = self.weights(x_train, x)
+        self.theta = np.zeros(x_train.shape[1])
+        gradient = np.ones(x_train.shape[1]) * np.inf
+        while np.linalg.norm(gradient) > self.threshold:
+            h = self.logistic(x_train)
+            gradient = x_train.T.dot(self.w * (y_train - h)) - self.reg * self.theta
+            D = np.diag(-self.w * h * (1 - h))
+            H = x_train.T.dot(D).dot(x_train) - self.reg * np.identity(x_train.shape[1])
+            self.theta -= np.linalg.inv(H).dot(gradient)
+
+    def predict(self, x):
+        return int(self.logistic(x.reshape(1, -1)) > 0.5)
+
+def plot_lwlr(x_train_full, y_train_full, x_train_pca, y_train, tau, res, pca_transformer):
+    lwlr = locally_weighted_logistic_regression(tau)
+    x_min, x_max = x_train_pca[:, 0].min() - 1, x_train_pca[:, 0].max() + 1
+    y_min, y_max = x_train_pca[:, 1].min() - 1, x_train_pca[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, res), np.linspace(y_min, y_max, res))
+    cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA'])
+    cmap_bold = ListedColormap(['#FF0000', '#00FF00'])
+    pred = np.zeros(xx.shape)
+    for i in range(xx.shape[0]):
+        for j in range(xx.shape[1]):
+            x_point_pca = np.array([xx[i, j], yy[i, j]])
+            x_original = pca_transformer.inverse_transform(x_point_pca)
+            lwlr.train(x_train_full, y_train_full, x_original)
+            pred[i, j] = lwlr.predict(x_original)
+    plt.figure()
+    plt.pcolormesh(xx, yy, pred, cmap=cmap_light, shading='auto')
+    plt.scatter(x_train_pca[:, 0], x_train_pca[:, 1], c=y_train, cmap=cmap_bold, edgecolor='k')
+    plt.xlabel("Principal Component 1")
+    plt.ylabel("Principal Component 2")
+    plt.title(f"Locally Weighted Logistic Regression (tau={tau})")
+    plt.show()
+
+# Set parameters
+tau = 0.5
+res = 100
+    </code></pre>
+
+    <p>
+        The code demonstrates Chi's implementation of locally weighted logistic regression for the binary target variable, using different comparisons
+        between flower species in the Iris dataset. By running the model twice—once for Setosa vs Versicolor and once for Setosa vs Virginica—
+        we handle the binary classification problem effectively. The PCA plots visualize the decision boundary for the different classifications.
+    </p>
+    </div>
+
+
+    
 
 
 
