@@ -52,44 +52,44 @@
     </div>
 
     <div class="section">
-        <h2>Patricks_Gradient_Boosted_LWR Class</h2>
-        <p>
-            My <strong>Patricks_Gradient_Boosted_LWR</strong> class is designed to implement gradient boosting in the context of Locally Weighted Regression (LWR). 
-            This class introduces flexibility and customization by allowing me to specify the number of boosting iterations I want to perform when 
-            running the <code>cross_validate</code> function. Additionally, it provides an option to choose between three different standardization techniques: 
-            <strong>QuantileScaler</strong>, <strong>MinMaxScaler</strong>, and <strong>StandardScaler</strong>. These scalers are key to ensuring that data is appropriately 
-            scaled before running the regression models.
-        </p>
+    <h2>Patricks_Gradient_Boosted_LWR Class</h2>
+    <p>
+        The <strong>Patricks_Gradient_Boosted_LWR</strong> class I designed implements gradient boosting within the framework of Locally Weighted Regression (LWR). 
+        This class offers flexibility and customization by allowing the user to specify how many boosting iterations they would like to perform 
+        when running the <code>cross_validate</code> function. Additionally, the class gives the user the option to choose from three different standardization techniques: 
+        <strong>QuantileScaler</strong>, <strong>MinMaxScaler</strong>, and <strong>StandardScaler</strong>. These scalers ensure that the data is appropriately 
+        scaled before running the regression models.
+    </p>
 
-        <h2>Key Features:</h2>
-        <ul>
-            <li><strong>My Control Over Gradient Boosting:</strong>
-                I can control the number of boosting stages using the <code>n_boosts</code> argument in the <code>cross_validate</code> function. This flexibility 
-                allows me to customize how much the model iteratively refines the residuals through multiple boosting steps.
-            </li>
+    <h2>Key Features:</h2>
+    <ul>
+        <li><strong>User Control Over Gradient Boosting:</strong>
+            The user can control the number of boosting stages using the <code>n_boosts</code> argument in the <code>cross_validate</code> function. This flexibility 
+            allows the user to decide how much the model should iteratively refine residuals through multiple boosting steps.
+        </li>
 
-            <li><strong>Choice of Standardization Method:</strong>
-                The <code>cross_validate</code> function allows me to choose between three different data standardization methods:
-                <ul>
-                    <li><strong>StandardScaler:</strong> Standardizes features by removing the mean and scaling to unit variance.</li>
-                    <li><strong>MinMaxScaler:</strong> Scales features to a given range (usually between 0 and 1).</li>
-                    <li><strong>QuantileScaler:</strong> Transforms features to follow a uniform or normal distribution.</li>
-                </ul>
-                The comparison between these scalers is a core feature of the class, as it shows how different data transformations impact model performance.
-            </li>
+        <li><strong>Choice of Standardization Method:</strong>
+            The <code>cross_validate</code> function lets the user choose between three different data standardization methods:
+            <ul>
+                <li><strong>StandardScaler:</strong> Standardizes features by removing the mean and scaling to unit variance.</li>
+                <li><strong>MinMaxScaler:</strong> Scales features to a given range (usually between 0 and 1).</li>
+                <li><strong>QuantileScaler:</strong> Transforms features to follow a uniform or normal distribution.</li>
+            </ul>
+            Comparing these scalers is a core feature of the class, helping the user understand how different data transformations affect model performance.
+        </li>
 
-            <li><strong>Cross-Validation and Model Comparison:</strong>
-                I use <strong>10-fold cross-validation</strong> to train and test the locally weighted regression model. It compares the performance of the 
-                <strong>Locally Weighted Regression</strong> model against the <strong>eXtreme Gradient Boosting (XGBoost)</strong> model. The cross-validation function computes the 
-                <strong>Mean Squared Error (MSE)</strong> for both models and prints the results for direct comparison.
-            </li>
+        <li><strong>Cross-Validation and Model Comparison:</strong>
+            I designed the class to use <strong>10-fold cross-validation</strong> to train and test the locally weighted regression model. It compares the performance of the 
+            <strong>Locally Weighted Regression</strong> model against the <strong>eXtreme Gradient Boosting (XGBoost)</strong> model. The cross-validation function computes the 
+            <strong>Mean Squared Error (MSE)</strong> for both models and prints the results for direct comparison.
+        </li>
 
-            <li><strong>Competing with XGBoost:</strong>
-                One of my primary goals with this class is to demonstrate that <strong>Locally Weighted Regression</strong> (when enhanced with gradient boosting) 
-                can compete with the widely used <strong>XGBoost</strong> model. By refining the predictions through boosting and scaling the data appropriately, 
-                the class shows how LWR can achieve comparable or better MSEs than XGBoost in regression tasks.
-            </li>
-        </ul>
+        <li><strong>Competing with XGBoost:</strong>
+            One of the primary goals of this class is to demonstrate that <strong>Locally Weighted Regression</strong> (enhanced with gradient boosting) 
+            can compete with the popular <strong>XGBoost</strong> model. By refining predictions through boosting and scaling the data appropriately, 
+            the class aims to show that LWR can achieve results that are comparable to or better than XGBoost in regression tasks.
+        </li>
+    </ul>
     </div>
 
     <div class="section">
