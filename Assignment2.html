@@ -662,6 +662,39 @@ res = 100
     </p>
     </div>
 
+    <div class="section">
+    <h2>Results: Locally Weighted Logistic Regression</h2>
+    
+    <h3>Setosa vs Versicolor</h3>
+    <p>The following plot shows the decision boundary for Locally Weighted Logistic Regression on the Setosa vs Versicolor classes.</p>
+    <img src="Images/setosa_vs_versicolor.png" alt="Setosa vs Versicolor - Locally Weighted Logistic Regression" style="width:50%; height:auto;">
+
+    <h3>Setosa vs Virginica</h3>
+    <p>The following plot shows the decision boundary for Locally Weighted Logistic Regression on the Setosa vs Virginica classes.</p>
+    <img src="Images/setosa_vs_virginica.png" alt="Setosa vs Virginica - Locally Weighted Logistic Regression" style="width:50%; height:auto;">
+    
+    <h3>Code Used for These Results</h3>
+    <pre><code class="language-python">
+x_train_full = X_sv
+y_train_full = y_sv
+x_train_pca = X_sv_pca
+y_train = y_sv
+plot_lwlr(x_train_full, y_train_full, x_train_pca, y_train, tau, res, pca_sv, filename='setosa_vs_versicolor.png')
+
+x_train_full = X_svi
+y_train_full = y_svi
+x_train_pca = X_svi_pca
+y_train = y_svi
+plot_lwlr(x_train_full, y_train_full, x_train_pca, y_train, tau, res, pca_svi, filename='setosa_vs_virginica.png')
+    </code></pre>
+    
+    <p>
+        The above plots visualize the decision boundaries created by Locally Weighted Logistic Regression on the Iris dataset, focusing on the binary 
+        classification problems of Setosa vs Versicolor and Setosa vs Virginica. The model utilizes a <strong>tau</strong> value of 0.5 and 
+        <strong>PCA</strong> to reduce the features to two principal components for visualization.
+    </p>
+    </div>
+
 
     
 
