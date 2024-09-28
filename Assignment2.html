@@ -17,6 +17,8 @@
         }
         p {
             font-size: 1.1em;
+            line-height: 1.6em;  /* Adjusts spacing within paragraphs */
+            margin-bottom: 20px;  /* Increases space between paragraphs */
         }
         .header {
             background-color: #f4f4f4;
@@ -25,11 +27,6 @@
         }
         .section {
             margin-top: 20px;
-        }
-        pre {
-            background: #f4f4f4;
-            padding: 15px;
-            border-radius: 5px;
         }
     </style>
 </head>
@@ -692,6 +689,16 @@ plot_lwlr(x_train_full, y_train_full, x_train_pca, y_train, tau, res, pca_svi, f
         The above plots visualize the decision boundaries created by Locally Weighted Logistic Regression on the Iris dataset, focusing on the binary 
         classification problems of Setosa vs Versicolor and Setosa vs Virginica. The model utilizes a <strong>tau</strong> value of 0.5 and 
         <strong>PCA</strong> to reduce the features to two principal components for visualization.
+    </p>
+    </div>
+
+    <div class="section">
+    <h2>Conclusion: Comparing Patrick's and Chi's Implementations</h2>
+    <p>
+        Overall, my implementation of Locally Weighted Logistic Regression proved to be more effective for the Iris dataset since it can handle all three classes in a single run. 
+        By incorporating multiclass prediction, combined with strong performance metrics, my model offers a better solution for datasets with multiple categories.
+        On the other hand, while Chi’s model performs well for binary classification, it’s more limited in this context because it requires multiple runs and can’t predict all classes simultaneously.
+        For this specific task, my approach outperforms Chi’s model in terms of both versatility and efficiency.
     </p>
     </div>
 
