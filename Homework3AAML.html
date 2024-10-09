@@ -823,6 +823,93 @@ print(f"Average MSE between SqrtLasso-estimated coefficients and betastar across
     </ol>
 <section>
 
+<section>
+    <h2>SCAD Cross-Validation on Concrete Dataset</h2>
+
+    <pre><code class="language-python">
+def cross_validate_scad(X, y, alphas, num_folds=10, num_epochs=1000, learning_rate=0.1):
+    kf = KFold(n_splits=num_folds, shuffle=True, random_state=42)
+    best_alpha = None
+    best_mse = float('inf')
+    best_model = None
+    all_fold_mses = []
+
+    for alpha in alphas:
+        fold_mses = []
+        for train_index, val_index in kf.split(X):
+            X_train, X_val = X[train_index], X[val_index]
+            y_train, y_val = y[train_index], y[val_index]
+
+            X_train_tensor = torch.tensor(X_train, dtype=torch.double)
+            y_train_tensor = torch.tensor(y_train.reshape(-1, 1), dtype=torch.double)
+            X_val_tensor = torch.tensor(X_val, dtype=torch.double)
+            y_val_tensor = torch.tensor(y_val.reshape(-1, 1), dtype=torch.double)
+
+            model = SCADLinearModel(input_dim=X_train.shape[1], alpha=alpha, a=6.0)  
+            optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+            for epoch in range(num_epochs):
+                model.train()
+                predictions = model(X_train_tensor)
+                loss = model.compute_loss(predictions, y_train_tensor)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+            model.eval()
+            with torch.no_grad():
+                val_predictions = model(X_val_tensor)
+                val_mse = nn.functional.mse_loss(val_predictions, y_val_tensor).item()
+                fold_mses.append(val_mse)
+
+        avg_mse = np.mean(fold_mses)
+        all_fold_mses.append((alpha, avg_mse))
+        print(f"Alpha: {alpha}, Validation MSE: {avg_mse:.4f}")
+
+        if avg_mse < best_mse:
+            best_mse = avg_mse
+            best_alpha = alpha
+            best_model = model.state_dict()  
+
+    return best_alpha, best_mse, all_fold_mses, best_model
+
+
+X = data.drop(columns=['strength'])
+y = data['strength']
+scaler = StandardScaler()
+poly = PolynomialFeatures(degree=2, include_bias=False)
+X_poly = poly.fit_transform(X)
+X_scaled = scaler.fit_transform(X_poly)
+X_np = X_scaled
+y_np = y.to_numpy()
+alphas = [0.1, 0.5]
+best_alpha, best_mse, all_fold_mses, best_model = cross_validate_scad(X_np, y_np, alphas, num_epochs=1000)
+
+print(f"\nBest Alpha: {best_alpha}, Best Cross-Validated MSE: {best_mse:.4f}")
+
+model = SCADLinearModel(input_dim=X_np.shape[1], alpha=best_alpha, a=6.0)
+model.load_state_dict(best_model)
+with torch.no_grad():
+    coefficients = model.linear.weight.cpu().numpy().flatten()
+non_zero_weights = np.sum(np.abs(coefficients) > 1e-1)  
+
+print(f"Ideal Model Size (number of variables with non-zero weights): {non_zero_weights}")
+print(f"Cross-Validated MSEs across all folds: {all_fold_mses}")
+print(f"Coefficients: {coefficients}")
+    </code></pre>
+
+    <h3>Results</h3>
+    <ul>
+        <li><strong>Alpha: 0.1, Validation MSE:</strong> 62.2146</li>
+        <li><strong>Alpha: 0.5, Validation MSE:</strong> 64.7830</li>
+        <li><strong>Best Alpha:</strong> 0.1</li>
+        <li><strong>Best Cross-Validated MSE:</strong> 62.2146</li>
+        <li><strong>Ideal Model Size (number of variables with non-zero weights):</strong> 30</li>
+        <li><strong>Cross-Validated MSEs across all folds:</strong> [(0.1, 62.2146), (0.5, 64.7830)]</li>
+        <li><strong>Coefficients:</strong> [ 3.51625223e+00,  5.90980969e-03,  2.54634372e-03, ... ]</li>
+    </ul>
+</section>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
 
