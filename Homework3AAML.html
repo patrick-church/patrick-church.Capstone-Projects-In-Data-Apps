@@ -1115,6 +1115,15 @@ print(f"Coefficients: {coefficients}")
     </code></pre>
 </section>
 
+<section>
+    <h2>Model Performance Comparison</h2>
+    <p>
+        Based on the cross-validation results, the SCAD model performed the best in terms of minimizing the mean square error (MSE) and maintaining a relatively sparse model. SCAD achieved the lowest cross-validated MSE of <strong>62.2146</strong>, selecting <strong>30</strong> variables with non-zero weights, which indicates that it effectively balances feature selection and prediction accuracy. 
+        In comparison, ElasticNet had a higher MSE of <strong>64.8521</strong>, while selecting <strong>43</strong> non-zero coefficients, and the SqrtLasso model performed the worst with an MSE of <strong>129.1919</strong> and <strong>36</strong> non-zero coefficients. 
+        Thus, SCAD provided the best trade-off between model size and accuracy, making it the most effective regularization method for this dataset.
+    </p>
+</section>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
 
