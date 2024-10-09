@@ -289,6 +289,154 @@ print("-----------------------------------------------------")
         In the following sections, you will find the implementations of each of these regularization techniques, and their corresponding outputs when tested on the generated datasets.
     </p>
 </section>
+
+<section>
+    <h2>Betastar Implementation in the SCAD Class</h2>
+    <p>
+        In this section, we demonstrate how the SCAD regularization method, implemented in the <code>SCADLinearModel</code> class, approximates a true sparse coefficient vector (<code>betastar</code>) across 200 simulated datasets. The following code shows the process of generating datasets with a strong correlation structure and a sparse true coefficient vector (<code>betastar</code>). We then train the SCAD model on these datasets to estimate the feature importance and compare the estimated coefficients to the true <code>betastar</code>.
+    </p>
+    
+    <h3>Code for Dataset Generation and SCAD Training</h3>
+    <pre><code class="language-python">
+def mse_coefficients(betastar, estimated_coeffs):
+    return np.mean((betastar - estimated_coeffs) ** 2)
+
+def make_correlated_features(num_samples, p, rho, betastar, noise_std=0.1):
+    vcor = [rho ** i for i in range(p)]
+    r = toeplitz(vcor)
+    mu = np.zeros(p)
+    X = np.random.multivariate_normal(mu, r, size=num_samples)
+    epsilon = np.random.normal(0, noise_std, size=(num_samples, 1))
+    y = X @ betastar.reshape(-1, 1) + epsilon  
+    return X, y
+
+def create_betastar(p, sparsity_level):
+    betastar = np.zeros(p)
+    non_zero_indices = np.random.choice(p, sparsity_level, replace=False)
+    betastar[non_zero_indices] = np.random.uniform(1, 5, size=sparsity_level)
+    return betastar
+
+rho = 0.9
+p = 20
+n = 150
+num_datasets = 200
+sparsity_level = 5
+noise_std = 0.1
+
+betastar = create_betastar(p, sparsity_level)
+print("True betastar:", betastar)
+
+datasets = [make_correlated_features(n, p, rho, betastar, noise_std) for _ in range(num_datasets)]
+
+all_feature_importances = []  
+all_losses = []  
+mse_results = []  
+
+for i, (X_train, y_train) in enumerate(datasets):
+    x_train_tensor = torch.tensor(X_train, dtype=torch.double)
+    y_train_tensor = torch.tensor(y_train, dtype=torch.double)
+
+    model = SCADLinearModel(input_dim=p, alpha=1.0, a=3.5, device="cpu")
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+
+    num_epochs = 1000
+    for epoch in range(num_epochs):
+        model.train()
+        predictions = model(x_train_tensor)
+        loss = model.compute_loss(predictions, y_train_tensor)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+    all_losses.append(loss.item())
+
+    with torch.no_grad():
+        weights = model.linear.weight.cpu().numpy()
+
+    all_feature_importances.append(weights[0])
+
+    mse = mse_coefficients(betastar, weights[0])
+    mse_results.append(mse)
+
+avg_feature_importance = np.mean(all_feature_importances, axis=0)
+
+feature_names = [f'Feature {i+1}' for i in range(p)]
+
+average_importance = list(zip(feature_names, avg_feature_importance))
+
+average_importance.sort(key=lambda x: abs(x[1]), reverse=True)
+
+print("Average Feature Importance (sorted by absolute weight value across 200 datasets):")
+print("-----------------------------------------------------")
+print("| Feature        |    Avg Weight   |   Importance Rank  |")
+print("-----------------------------------------------------")
+for rank, (feature, weight) in enumerate(average_importance, 1):
+    print(f"| {feature:<14} |  {weight:>9.4f}     |        {rank:<2}          |")
+print("-----------------------------------------------------")
+
+avg_loss = np.mean(all_losses)
+print(f"\nAverage Loss across 200 datasets: {avg_loss:.4f}")
+
+avg_mse = np.mean(mse_results)
+print(f"Average MSE between SCAD-estimated coefficients and betastar across 200 datasets: {avg_mse:.4f}")
+    </code></pre>
+
+    <h3>Explanation</h3>
+    <p>
+        This code performs the following:
+    </p>
+    <ul>
+        <li><strong>MSE Calculation:</strong> The <code>mse_coefficients</code> function computes the mean squared error (MSE) between the true <code>betastar</code> and the estimated coefficients from the SCAD model. This measures how close the model’s estimates are to the true underlying values.</li>
+        <li><strong>Generating Correlated Datasets:</strong> The <code>make_correlated_features</code> function generates datasets with a strong correlation structure between features (correlation of ~0.9) and adds some noise to simulate real-world data.</li>
+        <li><strong>Creating Betastar:</strong> The <code>create_betastar</code> function creates a sparse coefficient vector, where only a few of the features are assigned non-zero values. This is the true signal that the SCAD model will attempt to recover.</li>
+        <li><strong>Training the SCAD Model:</strong> The code then trains the SCAD model on each dataset for 1000 epochs, and after training, the estimated coefficients are compared to the true <code>betastar</code>.</li>
+    </ul>
+
+    <h3>Results</h3>
+    <p>Here are the results from running the SCAD model on 200 datasets:</p>
+
+    <h4>True Betastar</h4>
+    <pre><code>True betastar: [0., 0., 0., 0., 0., 0., 0., 3.8197, 4.2420, 3.1721, 0., 0., 3.0342, 0., 4.6579, 0., 0., 0., 0., 0.]</code></pre>
+
+    <h4>Average Feature Importance (sorted by absolute weight value across 200 datasets)</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Average Weight</th>
+                <th>Importance Rank</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Feature 15</td><td>5.5484</td><td>1</td></tr>
+            <tr><td>Feature 9</td><td>4.7952</td><td>2</td></tr>
+            <tr><td>Feature 8</td><td>3.8178</td><td>3</td></tr>
+            <tr><td>Feature 10</td><td>3.0063</td><td>4</td></tr>
+            <tr><td>Feature 13</td><td>1.6533</td><td>5</td></tr>
+            <tr><td>Feature 12</td><td>0.0088</td><td>6</td></tr>
+            <tr><td>Feature 14</td><td>0.0063</td><td>7</td></tr>
+            <tr><td>Feature 11</td><td>0.0053</td><td>8</td></tr>
+            <tr><td>Feature 19</td><td>0.0019</td><td>9</td></tr>
+            <tr><td>Feature 1</td><td>0.0017</td><td>10</td></tr>
+            <tr><td>Feature 4</td><td>0.0011</td><td>11</td></tr>
+            <tr><td>Feature 3</td><td>0.0010</td><td>12</td></tr>
+            <tr><td>Feature 5</td><td>0.0009</td><td>13</td></tr>
+            <tr><td>Feature 7</td><td>0.0009</td><td>14</td></tr>
+            <tr><td>Feature 20</td><td>-0.0008</td><td>15</td></tr>
+            <tr><td>Feature 18</td><td>-0.0007</td><td>16</td></tr>
+            <tr><td>Feature 16</td><td>-0.0006</td><td>17</td></tr>
+            <tr><td>Feature 2</td><td>0.0003</td><td>18</td></tr>
+            <tr><td>Feature 17</td><td>0.0001</td><td>19</td></tr>
+            <tr><td>Feature 6</td><td>0.0001</td><td>20</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Other Results</h4>
+    <p>
+        <strong>Average Loss:</strong> The average loss across the 200 datasets was <strong>11.0002</strong>. This value includes both the MSE and the SCAD penalty, showing how well the model fits the data while regularizing the coefficients.<br>
+        <strong>Average MSE:</strong> The average mean squared error between the SCAD-estimated coefficients and the true <code>betastar</code> was <strong>0.3891</strong>, indicating that the SCAD model was able to approximate the true coefficients quite well.
+    </p>
+</section>
         
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
