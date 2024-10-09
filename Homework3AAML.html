@@ -824,6 +824,7 @@ print(f"Average MSE between SqrtLasso-estimated coefficients and betastar across
 <section>
 
 <section>
+<section>
     <h2>SCAD Cross-Validation on Concrete Dataset</h2>
 
     <pre><code class="language-python">
@@ -905,9 +906,22 @@ print(f"Coefficients: {coefficients}")
         <li><strong>Best Alpha:</strong> 0.1</li>
         <li><strong>Best Cross-Validated MSE:</strong> 62.2146</li>
         <li><strong>Ideal Model Size (number of variables with non-zero weights):</strong> 30</li>
-        <li><strong>Cross-Validated MSEs across all folds:</strong> [(0.1, 62.2146), (0.5, 64.7830)]</li>
-        <li><strong>Coefficients:</strong> [ 3.51625223e+00,  5.90980969e-03,  2.54634372e-03, ... ]</li>
+        <li><strong>Full Coefficients:</strong></li>
     </ul>
+
+    <pre><code>
+[ 3.51625223e+00  5.90980969e-03  2.54634372e-03  6.34846373e-03
+ -3.21755552e-03 -1.21320417e-03 -6.34329476e-03  3.77546214e+00
+ -9.13997494e-01 -3.04055551e-02  1.30768368e+00 -2.82085435e+00
+  3.44012144e-04  6.76324614e+00  4.43820697e+00  9.16117869e-01
+ -2.09831236e+00  2.94420754e-01  3.42707385e-03  9.25981210e-01
+  3.31988681e-03  7.66493721e+00  1.74805940e+00 -1.69972381e+00
+ -3.59669837e+00 -1.59258162e+00 -1.23824640e-02  7.08911905e+00
+  1.55635115e+00  4.37939401e+00  1.10249413e+00 -7.64892674e+00
+  4.34308998e-04  3.35726475e+00 -4.06508145e+00  2.96202302e+00
+  9.93867878e-04  1.92966949e+00 -2.63841392e-03  4.84427814e+00
+  2.10170128e+00 -7.00798100e+00  6.75246514e+00 -1.25554953e+01]
+    </code></pre>
 </section>
 
 <section>
@@ -991,8 +1005,22 @@ print(f"Coefficients: {coefficients}")
         <li><strong>Best L1 Ratio:</strong> 0.1</li>
         <li><strong>Best Cross-Validated MSE:</strong> 64.8521</li>
         <li><strong>Ideal Model Size (number of variables with non-zero weights):</strong> 43</li>
-        <li><strong>Coefficients:</strong> [ 2.37313886e+00, 9.06353286e-01, 9.33716037e-02, ... ]</li>
+        <li><strong>Full Coefficients:</strong></li>
     </ul>
+
+    <pre><code>
+[ 2.37313886e+00  9.06353286e-01  9.33716037e-02 -1.20788273e+00
+  5.03925146e-01  7.00941681e-03 -9.11565540e-02  2.88037989e+00
+  1.13573815e+00  1.10831622e+00  2.11357943e+00  1.13894912e+00
+ -3.97449215e-01  3.15663159e+00  1.92017783e+00  1.30657547e+00
+ -1.30724099e+00  6.39884014e-01  1.36933651e+00  1.07986987e+00
+  4.43364464e-01  2.00834705e+00  2.24173977e+00 -1.51885636e+00
+ -5.93939059e-02 -1.55001631e+00  2.08916363e-01  1.05986730e+00
+  2.13486535e+00 -7.86525131e-01  1.16160541e+00 -2.24508636e+00
+ -8.90361722e-01  1.61021098e+00 -4.13934928e+00  1.45481993e+00
+  7.06579790e-01  2.50470440e+00  1.68895519e-02  1.13281014e-01
+  3.09951953e+00 -1.12286991e+00  4.48170725e+00 -9.16478855e+00]
+    </code></pre>
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
