@@ -437,7 +437,191 @@ print(f"Average MSE between SCAD-estimated coefficients and betastar across 200 
         <strong>Average MSE:</strong> The average mean squared error between the SCAD-estimated coefficients and the true <code>betastar</code> was <strong>0.3891</strong>, indicating that the SCAD model was able to approximate the true coefficients quite well.
     </p>
 </section>
-        
+
+
+<section>
+    <h2>Betastar Implementation in the ElasticNet Class</h2>
+    <p>
+        In this section, we describe the implementation of ElasticNet regularization using the <code>ElasticNet</code> class. ElasticNet is a combination of L1 (Lasso) and L2 (Ridge) regularization, controlled by the <code>l1_ratio</code> parameter, making it suitable for handling datasets with multicollinearity. The code below generates correlated datasets and trains the ElasticNet model to approximate the true <code>betastar</code> values across 200 datasets.
+    </p>
+
+    <h3>Code for ElasticNet Implementation and Dataset Generation</h3>
+    <pre><code class="language-python">
+class ElasticNet(nn.Module):
+    def __init__(self, input_size, alpha=1.0, l1_ratio=0.5):
+        super(ElasticNet, self).__init__()
+        self.input_size = input_size
+        self.alpha = alpha
+        self.l1_ratio = l1_ratio
+
+        self.linear = nn.Linear(input_size, 1).double()
+
+    def forward(self, x):
+        return self.linear(x)
+
+    def loss(self, y_pred, y_true):
+        mse_loss = nn.MSELoss()(y_pred, y_true)
+        l1_reg = torch.norm(self.linear.weight, p=1)
+        l2_reg = torch.norm(self.linear.weight, p=2)
+
+        loss = mse_loss + self.alpha * (
+            self.l1_ratio * l1_reg + (1 - self.l1_ratio) * l2_reg
+        )
+
+        return loss
+
+    def fit(self, X, y, num_epochs=1000, learning_rate=0.01):
+        optimizer = optim.SGD(self.parameters(), lr=learning_rate)
+
+        for epoch in range(num_epochs):
+            self.train()
+            optimizer.zero_grad()
+            y_pred = self(X)
+            loss = self.loss(y_pred, y)
+            loss.backward()
+            optimizer.step()
+
+    def predict(self, X):
+        self.eval()
+        with torch.no_grad():
+            y_pred = self(X)
+        return y_pred
+
+    def get_coefficients(self):
+        return self.linear.weight
+
+def mse_coefficients(betastar, estimated_coeffs):
+    return np.mean((betastar - estimated_coeffs) ** 2)
+
+def make_correlated_features(num_samples, p, rho, betastar, noise_std=0.1):
+    vcor = [rho ** i for i in range(p)]
+    r = toeplitz(vcor)
+    mu = np.zeros(p)
+    X = np.random.multivariate_normal(mu, r, size=num_samples)
+    epsilon = np.random.normal(0, noise_std, size=(num_samples, 1))
+    y = X @ betastar.reshape(-1, 1) + epsilon  
+    return X, y
+
+def create_betastar(p, sparsity_level):
+    betastar = np.zeros(p)
+    non_zero_indices = np.random.choice(p, sparsity_level, replace=False)
+    betastar[non_zero_indices] = np.random.uniform(1, 5, size=sparsity_level)
+    return betastar
+
+rho = 0.9
+p = 20
+n = 150
+num_datasets = 200
+sparsity_level = 5
+noise_std = 0.1
+
+betastar = create_betastar(p, sparsity_level)
+print("True betastar:", betastar)
+
+datasets = [make_correlated_features(n, p, rho, betastar, noise_std) for _ in range(num_datasets)]
+
+all_feature_importances = [] 
+all_losses = []  
+mse_results = []  
+
+for i, (X_train, y_train) in enumerate(datasets):
+    
+    x_train_tensor = torch.tensor(X_train, dtype=torch.double)
+    y_train_tensor = torch.tensor(y_train, dtype=torch.double)
+
+    
+    model = ElasticNet(input_size=p, alpha=1.0, l1_ratio=0.5)  
+    model.fit(x_train_tensor, y_train_tensor, num_epochs=1000, learning_rate=0.01)
+
+    with torch.no_grad():
+        estimated_coeffs = model.get_coefficients().cpu().numpy().flatten()
+
+    all_feature_importances.append(estimated_coeffs)
+
+    mse = mse_coefficients(betastar, estimated_coeffs)
+    mse_results.append(mse)
+
+    final_loss = model.loss(model.predict(x_train_tensor), y_train_tensor).item()
+    all_losses.append(final_loss)
+
+avg_feature_importance = np.mean(all_feature_importances, axis=0)
+
+feature_names = [f'Feature {i+1}' for i in range(p)]
+
+average_importance = list(zip(feature_names, avg_feature_importance))
+
+average_importance.sort(key=lambda x: abs(x[1]), reverse=True)
+
+print("Average Feature Importance (sorted by absolute weight value across 200 datasets):")
+print("-----------------------------------------------------")
+print("| Feature        |    Avg Weight   |   Importance Rank  |")
+print("-----------------------------------------------------")
+for rank, (feature, weight) in enumerate(average_importance, 1):
+    print(f"| {feature:<14} |  {weight:>9.4f}     |        {rank:<2}          |")
+print("-----------------------------------------------------")
+
+avg_loss = np.mean(all_losses)
+print(f"\nAverage Loss across 200 datasets: {avg_loss:.4f}")
+
+avg_mse = np.mean(mse_results)
+print(f"Average MSE between ElasticNet-estimated coefficients and betastar across 200 datasets: {avg_mse:.4f}")
+    </code></pre>
+
+    <h3>Explanation</h3>
+    <p>
+        The <code>ElasticNet</code> class is designed to combine both L1 (Lasso) and L2 (Ridge) regularization terms. By adjusting the <code>l1_ratio</code> parameter, we can control the contribution of L1 vs L2 regularization. This method is particularly useful for handling datasets with multicollinearity.
+    </p>
+    <ul>
+        <li><strong>ElasticNet Loss Function:</strong> The loss function combines MSE with a penalty that is a weighted sum of the L1 and L2 norms of the coefficients. This helps regularize the model and prevent overfitting, especially in datasets with correlated features.</li>
+        <li><strong>Dataset Generation:</strong> Similar to the SCAD implementation, we generate 200 datasets with a strong correlation structure and apply the ElasticNet model to estimate the coefficients.</li>
+        <li><strong>Betastar:</strong> The true coefficients vector <code>betastar</code> is generated with sparsity, which the ElasticNet model attempts to recover.</li>
+    </ul>
+
+    <h3>Results</h3>
+    <p>Here are the results from running the ElasticNet model on 200 datasets:</p>
+
+    <h4>True Betastar</h4>
+    <pre><code>True betastar: [3.2384, 0., 0., 0., 1.3742, 0., 0., 3.4213, 0., 0., 0., 0., 0., 0., 1.3335, 0., 1.5703, 0., 0., 0.]</code></pre>
+
+    <h4>Average Feature Importance (sorted by absolute weight value across 200 datasets)</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Average Weight</th>
+                <th>Importance Rank</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Feature 1</td><td>2.3248</td><td>1</td></tr>
+            <tr><td>Feature 8</td><td>2.1266</td><td>2</td></tr>
+            <tr><td>Feature 17</td><td>0.9840</td><td>3</td></tr>
+            <tr><td>Feature 15</td><td>0.8481</td><td>4</td></tr>
+            <tr><td>Feature 5</td><td>0.8416</td><td>5</td></tr>
+            <tr><td>Feature 7</td><td>0.5500</td><td>6</td></tr>
+            <tr><td>Feature 2</td><td>0.5407</td><td>7</td></tr>
+            <tr><td>Feature 9</td><td>0.4709</td><td>8</td></tr>
+            <tr><td>Feature 16</td><td>0.4080</td><td>9</td></tr>
+            <tr><td>Feature 6</td><td>0.2967</td><td>10</td></tr>
+            <tr><td>Feature 4</td><td>0.2207</td><td>11</td></tr>
+            <tr><td>Feature 14</td><td>0.1806</td><td>12</td></tr>
+            <tr><td>Feature 18</td><td>0.1596</td><td>13</td></tr>
+            <tr><td>Feature 3</td><td>0.1358</td><td>14</td></tr>
+            <tr><td>Feature 10</td><td>0.0849</td><td>15</td></tr>
+            <tr><td>Feature 13</td><td>0.0424</td><td>16</td></tr>
+            <tr><td>Feature 12</td><td>0.0292</td><td>17</td></tr>
+            <tr><td>Feature 11</td><td>0.0272</td><td>18</td></tr>
+            <tr><td>Feature 19</td><td>0.0177</td><td>19</td></tr>
+            <tr><td>Feature 20</td><td>0.0081</td><td>20</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Other Results</h4>
+    <p>
+        <strong>Average Loss:</strong> The average loss across the 200 datasets was <strong>7.5427</strong>, indicating how well the model fits the data while regularizing the coefficients.<br>
+        <strong>Average MSE:</strong> The average mean squared error between the ElasticNet-estimated coefficients and the true <code>betastar</code> was <strong>0.2379</strong>, showing that the ElasticNet model was effective in approximating the true coefficients.
+    </p>
+</section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
