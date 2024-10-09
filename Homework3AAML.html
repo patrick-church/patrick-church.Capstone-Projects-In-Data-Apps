@@ -623,6 +623,188 @@ print(f"Average MSE between ElasticNet-estimated coefficients and betastar acros
     </p>
 </section>
 
+<section>
+    <h2>Betastar Implementation in the SqrtLasso Class</h2>
+    <p>
+        This section demonstrates the implementation of the SqrtLasso regression model using the <code>sqrtLasso</code> class. SqrtLasso is designed to minimize the square root of the mean squared error (MSE) combined with an L1 regularization term, which helps identify important features while controlling for overfitting. The following code generates correlated datasets, trains the SqrtLasso model, and estimates the coefficients to approximate the true <code>betastar</code> across 200 datasets.
+    </p>
+
+    <h3>Code for SqrtLasso Implementation and Dataset Generation</h3>
+    <pre><code class="language-python">
+class sqrtLasso(nn.Module):
+    def __init__(self, input_size, alpha=0.1):
+        """
+        Initialize the SqrtLasso regression model.
+        Args:
+            input_size (int): Number of input features.
+            alpha (float): Regularization strength for L1 penalty.
+        """
+        super(sqrtLasso, self).__init__()
+        self.input_size = input_size
+        self.alpha = alpha
+
+        self.linear = nn.Linear(input_size, 1).double()
+
+    def forward(self, x):
+        return self.linear(x)
+
+    def loss(self, y_pred, y_true):
+        mse_loss = nn.MSELoss()(y_pred, y_true)
+        l1_reg = torch.norm(self.linear.weight, p=1, dtype=torch.float64)
+
+        loss = (len(y_true) * mse_loss)**(1 / 2) + self.alpha * l1_reg
+        return loss
+
+    def fit(self, X, y, num_epochs=200, learning_rate=0.01):
+        optimizer = optim.Adam(self.parameters(), lr=learning_rate)
+        for epoch in range(num_epochs):
+            self.train()
+            optimizer.zero_grad()
+            y_pred = self(X)
+            loss = self.loss(y_pred, y)
+            loss.backward()
+            optimizer.step()
+
+    def predict(self, X):
+        self.eval()
+        with torch.no_grad():
+            y_pred = self(X)
+        return y_pred
+
+    def get_coefficients(self):
+        return self.linear.weight
+
+def mse_coefficients(betastar, estimated_coeffs):
+    return np.mean((betastar - estimated_coeffs) ** 2)
+
+def make_correlated_features(num_samples, p, rho, betastar, noise_std=0.1):
+    vcor = [rho ** i for i in range(p)]
+    r = toeplitz(vcor)
+    mu = np.zeros(p)
+    X = np.random.multivariate_normal(mu, r, size=num_samples)
+    epsilon = np.random.normal(0, noise_std, size=(num_samples, 1))
+    y = X @ betastar.reshape(-1, 1) + epsilon  
+    return X, y
+
+def create_betastar(p, sparsity_level):
+    betastar = np.zeros(p)
+    non_zero_indices = np.random.choice(p, sparsity_level, replace=False)
+    betastar[non_zero_indices] = np.random.uniform(1, 5, size=sparsity_level)
+    return betastar
+
+rho = 0.9
+p = 20
+n = 150
+num_datasets = 200
+sparsity_level = 5
+noise_std = 0.1
+
+betastar = create_betastar(p, sparsity_level)
+print("True betastar:", betastar)
+
+datasets = [make_correlated_features(n, p, rho, betastar, noise_std) for _ in range(num_datasets)]
+
+all_feature_importances = []  
+all_losses = []  
+mse_results = []  
+
+for i, (X_train, y_train) in enumerate(datasets):
+    x_train_tensor = torch.tensor(X_train, dtype=torch.double)
+    y_train_tensor = torch.tensor(y_train, dtype=torch.double)
+
+    model = sqrtLasso(input_size=p, alpha=0.1)  
+    model.fit(x_train_tensor, y_train_tensor, num_epochs=200, learning_rate=0.01)
+
+    with torch.no_grad():
+        estimated_coeffs = model.get_coefficients().cpu().numpy().flatten()
+
+    all_feature_importances.append(estimated_coeffs)
+
+    mse = mse_coefficients(betastar, estimated_coeffs)
+    mse_results.append(mse)
+
+    final_loss = model.loss(model.predict(x_train_tensor), y_train_tensor).item()
+    all_losses.append(final_loss)
+
+avg_feature_importance = np.mean(all_feature_importances, axis=0)
+
+feature_names = [f'Feature {i+1}' for i in range(p)]
+
+average_importance = list(zip(feature_names, avg_feature_importance))
+
+average_importance.sort(key=lambda x: abs(x[1]), reverse=True)
+
+print("Average Feature Importance (sorted by absolute weight value across 200 datasets):")
+print("-----------------------------------------------------")
+print("| Feature        |    Avg Weight   |   Importance Rank  |")
+print("-----------------------------------------------------")
+for rank, (feature, weight) in enumerate(average_importance, 1):
+    print(f"| {feature:<14} |  {weight:>9.4f}     |        {rank:<2}          |")
+print("-----------------------------------------------------")
+
+avg_loss = np.mean(all_losses)
+print(f"\nAverage Loss across 200 datasets: {avg_loss:.4f}")
+
+avg_mse = np.mean(mse_results)
+print(f"Average MSE between SqrtLasso-estimated coefficients and betastar across 200 datasets: {avg_mse:.4f}")
+    </code></pre>
+
+    <h3>Explanation</h3>
+    <p>
+        The <code>sqrtLasso</code> class is designed to minimize the square root of the MSE combined with an L1 regularization term. This method penalizes large coefficients, encouraging sparsity and improving feature selection.
+    </p>
+    <ul>
+        <li><strong>SqrtLasso Loss Function:</strong> The loss function takes the square root of the MSE and adds the L1 norm of the coefficients multiplied by the regularization strength (<code>alpha</code>).</li>
+        <li><strong>Dataset Generation:</strong> Similar to the other methods, we generate 200 datasets with a strong correlation structure and train the SqrtLasso model to estimate the coefficients and approximate the true <code>betastar</code>.</li>
+        <li><strong>Betastar:</strong> The true coefficients vector <code>betastar</code> is generated with sparsity, and the model attempts to recover these sparse features.
+    </ul>
+
+    <h3>Results</h3>
+    <p>Here are the results from running the SqrtLasso model on 200 datasets:</p>
+
+    <h4>True Betastar</h4>
+    <pre><code>True betastar: [3.2080, 0., 0., 0., 0., 0., 0., 0., 4.4330, 0., 1.4908, 0., 0., 4.0839, 0., 1.5071, 0., 0., 0., 0.]</code></pre>
+
+    <h4>Average Feature Importance (sorted by absolute weight value across 200 datasets)</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Average Weight</th>
+                <th>Importance Rank</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Feature 1</td><td>1.3504</td><td>1</td></tr>
+            <tr><td>Feature 14</td><td>1.3304</td><td>2</td></tr>
+            <tr><td>Feature 9</td><td>1.2933</td><td>3</td></tr>
+            <tr><td>Feature 11</td><td>1.1128</td><td>4</td></tr>
+            <tr><td>Feature 10</td><td>1.1126</td><td>5</td></tr>
+            <tr><td>Feature 13</td><td>1.0893</td><td>6</td></tr>
+            <tr><td>Feature 15</td><td>1.0616</td><td>7</td></tr>
+            <tr><td>Feature 12</td><td>1.0084</td><td>8</td></tr>
+            <tr><td>Feature 16</td><td>0.9378</td><td>9</td></tr>
+            <tr><td>Feature 8</td><td>0.8885</td><td>10</td></tr>
+            <tr><td>Feature 2</td><td>0.7939</td><td>11</td></tr>
+            <tr><td>Feature 7</td><td>0.5572</td><td>12</td></tr>
+            <tr><td>Feature 17</td><td>0.5300</td><td>13</td></tr>
+            <tr><td>Feature 3</td><td>0.4354</td><td>14</td></tr>
+            <tr><td>Feature 6</td><td>0.3195</td><td>15</td></tr>
+            <tr><td>Feature 18</td><td>0.2425</td><td>16</td></tr>
+            <tr><td>Feature 4</td><td>0.2412</td><td>17</td></tr>
+            <tr><td>Feature 5</td><td>0.2274</td><td>18</td></tr>
+            <tr><td>Feature 20</td><td>-0.0470</td><td>19</td></tr>
+            <tr><td>Feature 19</td><td>0.0437</td><td>20</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Other Results</h4>
+    <p>
+        <strong>Average Loss:</strong> The average loss across the 200 datasets was <strong>22.8629</strong>, which shows the overall fit of the model while penalizing large coefficients.<br>
+        <strong>Average MSE:</strong> The average MSE between the SqrtLasso-estimated coefficients and the true <code>betastar</code> was <strong>1.4375</strong>, indicating that the model was moderately effective in approximating the true coefficients.
+    </p>
+</section>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
 
