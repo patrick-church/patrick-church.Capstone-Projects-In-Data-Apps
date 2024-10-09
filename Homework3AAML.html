@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patrick Church - Assignment 3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        section {
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-left: 5px solid #4CAF50;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Patrick Church - Assignment 3</h1>
+    <p>October 9, 2024</p>
+</header>
+
+<section>
+    <h2>SCAD Regularization and Variable Selection in PyTorch</h2>
+    <p>
+        This assignment involved implementing a PyTorch class that applies SCAD (smoothly clipped absolute deviation) regularization and variable selection for linear models. The implementation was based on the following references:
+    </p>
+    <ul>
+        <li><a href="https://andrewcharlesjones.github.io/journal/scad.html" target="_blank">SCAD Method Overview</a></li>
+        <li><a href="https://www.jstor.org/stable/27640214?seq=1" target="_blank">JSTOR SCAD Regularization</a></li>
+    </ul>
+    <p>
+        The PyTorch class <code>SCADLinearModel</code> was developed to handle linear regression using SCAD regularization. The code includes a forward pass function, a SCAD penalty computation, and a custom loss function that combines mean squared error (MSE) with the SCAD penalty. Below is an example of the code implementation.
+    </p>
+
+    <h3>Class Implementation</h3>
+    <pre>
+class SCADLinearModel(nn.Module):
+    def __init__(self, input_dim, alpha=1.0, a=3.7, device="cpu"):
+        super(SCADLinearModel, self).__init__()
+        self.linear = nn.Linear(input_dim, 1).double()
+        self.alpha = alpha
+        self.a = a
+        self.device = device
+        self.to(device)
+
+    def scad_penalty(self, beta_hat, lambda_val, a_val):
+        abs_beta_hat = torch.abs(beta_hat)
+        is_linear = abs_beta_hat <= lambda_val
+        is_quadratic = (lambda_val < abs_beta_hat) & (abs_beta_hat <= a_val * lambda_val)
+        is_constant = abs_beta_hat > a_val * lambda_val
+        linear_part = lambda_val * abs_beta_hat * is_linear
+        quadratic_part = (2 * a_val * lambda_val * abs_beta_hat - beta_hat**2 - lambda_val**2) / (2 * (a_val - 1)) * is_quadratic
+        constant_part = (lambda_val**2 * (a_val + 1)) / 2 * is_constant
+        return linear_part + quadratic_part + constant_part
+
+    def forward(self, x):
+        return self.linear(x)
+
+    def compute_loss(self, predictions, targets):
+        mse_loss = nn.functional.mse_loss(predictions, targets)
+        scad_penalty = self.scad_penalty(self.linear.weight, self.alpha, self.a)
+        return mse_loss + scad_penalty.sum()
+    </pre>
+
+    <h3>Example: Concrete Dataset</h3>
+    <p>
+        The class was tested on the concrete dataset, where we applied SCAD regularization to determine the importance of features based on the final model's learned coefficients. Below are the results of the feature importance analysis after training the model for 1000 epochs.
+    </p>
+
+    <h3>Feature Coefficients</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Weight</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>cement</td>
+                <td>0.114060</td>
+            </tr>
+            <tr>
+                <td>slag</td>
+                <td>0.096984</td>
+            </tr>
+            <tr>
+                <td>ash</td>
+                <td>0.080741</td>
+            </tr>
+            <tr>
+                <td>water</td>
+                <td>-0.183815</td>
+            </tr>
+            <tr>
+                <td>superplastic</td>
+                <td>0.237173</td>
+            </tr>
+            <tr>
+                <td>coarseagg</td>
+                <td>0.010150</td>
+            </tr>
+            <tr>
+                <td>fineagg</td>
+                <td>0.011910</td>
+            </tr>
+            <tr>
+                <td>age</td>
+                <td>0.113812</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Feature Importance</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Weight</th>
+                <th>Importance Rank</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>superplastic</td>
+                <td>0.2372</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>water</td>
+                <td>-0.1838</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>cement</td>
+                <td>0.1141</td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>age</td>
+                <td>0.1138</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td>slag</td>
+                <td>0.0970</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>ash</td>
+                <td>0.0807</td>
+                <td>6</td>
+            </tr>
+            <tr>
+                <td>fineagg</td>
+                <td>0.0119</td>
+                <td>7</td>
+            </tr>
+            <tr>
+                <td>coarseagg</td>
+                <td>0.0102</td>
+                <td>8</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>
