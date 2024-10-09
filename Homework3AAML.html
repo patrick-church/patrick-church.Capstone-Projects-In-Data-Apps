@@ -910,6 +910,91 @@ print(f"Coefficients: {coefficients}")
     </ul>
 </section>
 
+<section>
+    <h2>ElasticNet Cross-Validation on Concrete Dataset</h2>
+
+    <pre><code class="language-python">
+def cross_validate_elasticnet(X, y, alphas, l1_ratios, num_folds=5, num_epochs=1000, learning_rate=0.01):
+    kf = KFold(n_splits=num_folds, shuffle=True, random_state=42)
+    best_alpha = None
+    best_l1_ratio = None
+    best_mse = float('inf')
+    best_model = None
+    all_fold_mses = []
+
+    for alpha in alphas:
+        for l1_ratio in l1_ratios:
+            fold_mses = []
+            for train_index, val_index in kf.split(X):
+                X_train, X_val = X[train_index], X[val_index]
+                y_train, y_val = y[train_index], y[val_index]
+
+                X_train_tensor = torch.tensor(X_train, dtype=torch.double)
+                y_train_tensor = torch.tensor(y_train.reshape(-1, 1), dtype=torch.double)
+                X_val_tensor = torch.tensor(X_val, dtype=torch.double)
+                y_val_tensor = torch.tensor(y_val.reshape(-1, 1), dtype=torch.double)
+
+
+                model = ElasticNet(input_size=X_train.shape[1], alpha=alpha, l1_ratio=l1_ratio)
+                model.fit(X_train_tensor, y_train_tensor, num_epochs=num_epochs, learning_rate=learning_rate)
+
+                model.eval()
+                with torch.no_grad():
+                    val_predictions = model(X_val_tensor)
+                    val_mse = nn.functional.mse_loss(val_predictions, y_val_tensor).item()
+                    fold_mses.append(val_mse)
+
+            avg_mse = np.mean(fold_mses)
+            print(f"Alpha: {alpha}, L1_ratio: {l1_ratio}, Validation MSE: {avg_mse:.4f}")
+
+            if avg_mse < best_mse:
+                best_mse = avg_mse
+                best_alpha = alpha
+                best_l1_ratio = l1_ratio
+                best_model = model.state_dict()  
+
+    return best_alpha, best_l1_ratio, best_mse, best_model
+
+X = data.drop(columns=['strength'])
+y = data['strength']
+scaler = StandardScaler()
+poly = PolynomialFeatures(degree=2, include_bias=False)
+X_poly = poly.fit_transform(X)
+X_scaled = scaler.fit_transform(X_poly)
+X_np = X_scaled
+y_np = y.to_numpy()
+alphas = [0.1, 0.5]
+l1_ratios = [0.1, 0.5, 0.9]  
+best_alpha, best_l1_ratio, best_mse, best_model = cross_validate_elasticnet(X_np, y_np, alphas, l1_ratios, num_epochs=1000)
+
+print(f"\nBest Alpha: {best_alpha}, Best L1 Ratio: {best_l1_ratio}, Best Cross-Validated MSE: {best_mse:.4f}")
+
+model = ElasticNet(input_size=X_np.shape[1], alpha=best_alpha, l1_ratio=best_l1_ratio)
+model.load_state_dict(best_model)
+with torch.no_grad():
+    coefficients = model.get_coefficients().cpu().numpy().flatten()
+non_zero_weights = np.sum(np.abs(coefficients) > 1e-2)  
+
+print(f"Ideal Model Size (number of variables with non-zero weights): {non_zero_weights}")
+print(f"Coefficients: {coefficients}")
+    </code></pre>
+
+    <h3>Results</h3>
+    <ul>
+        <li><strong>Alpha: 0.1, L1_ratio: 0.1, Validation MSE:</strong> 64.8521</li>
+        <li><strong>Alpha: 0.1, L1_ratio: 0.5, Validation MSE:</strong> 65.0555</li>
+        <li><strong>Alpha: 0.1, L1_ratio: 0.9, Validation MSE:</strong> 65.3758</li>
+        <li><strong>Alpha: 0.5, L1_ratio: 0.1, Validation MSE:</strong> 65.9953</li>
+        <li><strong>Alpha: 0.5, L1_ratio: 0.5, Validation MSE:</strong> 67.9087</li>
+        <li><strong>Alpha: 0.5, L1_ratio: 0.9, Validation MSE:</strong> 70.1001</li>
+        <li><strong>Best Alpha:</strong> 0.1</li>
+        <li><strong>Best L1 Ratio:</strong> 0.1</li>
+        <li><strong>Best Cross-Validated MSE:</strong> 64.8521</li>
+        <li><strong>Ideal Model Size (number of variables with non-zero weights):</strong> 43</li>
+        <li><strong>Coefficients:</strong> [ 2.37313886e+00, 9.06353286e-01, 9.33716037e-02, ... ]</li>
+    </ul>
+</section>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
 
