@@ -1023,6 +1023,98 @@ print(f"Coefficients: {coefficients}")
     </code></pre>
 </section>
 
+<section>
+    <h2>SqrtLasso Cross-Validation on Concrete Dataset</h2>
+
+    <pre><code class="language-python">
+def cross_validate_sqrt_lasso(model_class, X, y, alphas, num_folds=5, num_epochs=1000, learning_rate=0.01):
+    kf = KFold(n_splits=num_folds, shuffle=True, random_state=42)
+    best_alpha = None
+    best_mse = float('inf')
+    best_model = None
+    all_fold_mses = []
+
+    for alpha in alphas:
+        fold_mses = []
+        for train_index, val_index in kf.split(X):
+            X_train, X_val = X[train_index], X[val_index]
+            y_train, y_val = y[train_index], y[val_index]
+
+            X_train_tensor = torch.tensor(X_train, dtype=torch.double)
+            y_train_tensor = torch.tensor(y_train.reshape(-1, 1), dtype=torch.double)
+            X_val_tensor = torch.tensor(X_val, dtype=torch.double)
+            y_val_tensor = torch.tensor(y_val.reshape(-1, 1), dtype=torch.double)
+
+            if model_class == sqrtLasso:
+                model = model_class(input_size=X_train.shape[1], alpha=alpha)
+                model.fit(X_train_tensor, y_train_tensor, num_epochs=num_epochs, learning_rate=learning_rate)
+            else:
+                raise ValueError("Unknown model class")
+
+            model.eval()
+            with torch.no_grad():
+                val_predictions = model(X_val_tensor)
+                val_mse = nn.functional.mse_loss(val_predictions, y_val_tensor).item()
+                fold_mses.append(val_mse)
+
+        avg_mse = np.mean(fold_mses)
+        all_fold_mses.append(avg_mse)
+        print(f"Alpha: {alpha}, Validation MSE: {avg_mse:.4f}")
+
+        if avg_mse < best_mse:
+            best_mse = avg_mse
+            best_alpha = alpha
+            best_model = model.state_dict()  
+
+    return best_alpha, best_mse, all_fold_mses, best_model
+
+
+X = data.drop(columns=['strength'])
+y = data['strength']
+scaler = MinMaxScaler()
+poly = PolynomialFeatures(degree=2, include_bias=False)
+X_poly = poly.fit_transform(X)
+X_scaled = scaler.fit_transform(X_poly)
+X_np = X_scaled
+y_np = y.to_numpy()
+alphas = [0.1, 0.5]
+best_alpha, best_mse, all_fold_mses, best_model = cross_validate_sqrt_lasso(sqrtLasso, X_np, y_np, alphas, num_epochs=1000)
+
+print(f"\nBest Alpha: {best_alpha}, Best Cross-Validated MSE: {best_mse:.4f}")
+
+model = sqrtLasso(input_size=X_np.shape[1], alpha=best_alpha)
+model.load_state_dict(best_model)
+with torch.no_grad():
+    coefficients = model.get_coefficients().cpu().numpy().flatten()
+non_zero_weights = np.sum(np.abs(coefficients) > 1)  
+
+print(f"Ideal Model Size (number of variables with non-zero weights): {non_zero_weights}")
+print(f"Cross-Validated MSEs across all folds: {all_fold_mses}")
+print(f"Coefficients: {coefficients}")
+    </code></pre>
+
+    <h3>Results</h3>
+    <ul>
+        <li><strong>Alpha: 0.1, Validation MSE:</strong> 129.1919</li>
+        <li><strong>Alpha: 0.5, Validation MSE:</strong> 132.0758</li>
+        <li><strong>Best Alpha:</strong> 0.1</li>
+        <li><strong>Best Cross-Validated MSE:</strong> 129.1919</li>
+        <li><strong>Ideal Model Size (number of variables with non-zero weights):</strong> 36</li>
+        <li><strong>Full Coefficients:</strong></li>
+    </ul>
+
+    <pre><code>
+[ 5.68596423  3.47554761  0.90990143  1.80437916  4.29606457  2.79076772
+  1.85914775  5.31771261  6.26410827  5.50153176  3.29584782  5.60432414
+  5.3358012   5.53639732  5.59213085  6.14206708  2.69628793  0.45726294
+  2.92397486  5.71898156  3.38169535  3.344988    5.41906863 -0.13592886
+  0.3783961   0.16418269  0.64324518  0.66590532  5.94620951  1.52022699
+  4.06091041  1.56692651  0.81555875  4.87070289  3.54236243  4.28697075
+  4.36839147  7.35384986  2.73594379  1.95714512  5.61355563  1.67396253
+  5.49115194  1.67004204]
+    </code></pre>
+</section>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
 
