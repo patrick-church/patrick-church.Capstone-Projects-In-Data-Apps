@@ -805,6 +805,24 @@ print(f"Average MSE between SqrtLasso-estimated coefficients and betastar across
     </p>
 </section>
 
+<section>
+    <h2>Variable Selection Using SCAD, ElasticNet, and SqrtLasso for the Concrete Dataset with Quadratic Interaction Terms</h2>
+    <p>
+        In this section, I applied the three methods implemented above—SCAD, ElasticNet, and SqrtLasso—to the Concrete dataset, including quadratic interaction terms (polynomial features of degree 2). The goal is to determine the ideal model size (the number of variables with non-zero weights) and the cross-validated mean square error (MSE) for each method. Additionally, I will evaluate and compare these models to choose the best one.
+    </p>
+
+    <h3>Overview of the Process</h3>
+    <p>
+        Each method was used to perform variable selection on the Concrete dataset, including interaction terms. Polynomial features of degree 2 were generated to include quadratic interactions between variables, resulting in a more complex feature set. For each method, the following process was followed:
+    </p>
+    <ol>
+        <li>Generate quadratic interaction terms for the dataset using polynomial features.</li>
+        <li>Apply the respective method (SCAD, ElasticNet, or SqrtLasso) to perform variable selection and fit the model.</li>
+        <li>Tune the regularization parameter (penalty weight) to find the best fit.</li>
+        <li>Evaluate the model by calculating the ideal model size (number of non-zero coefficients) and cross-validated MSE.</li>
+    </ol>
+<section>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
 
