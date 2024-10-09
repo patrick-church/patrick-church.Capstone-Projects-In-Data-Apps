@@ -4,53 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patrick Church - Assignment 3</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f0f0f0;
             margin: 0;
             padding: 0;
         }
         header {
-            background-color: #4CAF50;
+            background-color: #333;
             color: white;
-            padding: 20px;
+            padding: 10px;
             text-align: center;
         }
         section {
             margin: 20px;
-            padding: 20px;
+            padding: 15px;
             background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
         }
         h1, h2 {
             color: #333;
         }
         p {
-            font-size: 1.1em;
+            font-size: 1.0em;
             line-height: 1.6;
-            color: #555;
+            color: #444;
         }
         pre {
             background-color: #f4f4f4;
             padding: 10px;
             border-left: 5px solid #4CAF50;
             overflow-x: auto;
+            border-radius: 4px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            font-size: 0.9em;
         }
         table, th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
         }
         th, td {
-            padding: 10px;
+            padding: 8px;
             text-align: left;
         }
         th {
-            background-color: #4CAF50;
+            background-color: #333;
             color: white;
         }
     </style>
@@ -63,20 +67,20 @@
 </header>
 
 <section>
-    <h2>SCAD Regularization and Variable Selection in PyTorch</h2>
+    <h2>SCAD Regularization in PyTorch</h2>
     <p>
-        This assignment involved implementing a PyTorch class that applies SCAD (smoothly clipped absolute deviation) regularization and variable selection for linear models. The implementation was based on the following references:
+        I implemented SCAD (smoothly clipped absolute deviation) regularization for linear models in PyTorch. The references for this task are:
     </p>
     <ul>
         <li><a href="https://andrewcharlesjones.github.io/journal/scad.html" target="_blank">SCAD Method Overview</a></li>
         <li><a href="https://www.jstor.org/stable/27640214?seq=1" target="_blank">JSTOR SCAD Regularization</a></li>
     </ul>
     <p>
-        The PyTorch class <code>SCADLinearModel</code> was developed to handle linear regression using SCAD regularization. The code includes a forward pass function, a SCAD penalty computation, and a custom loss function that combines mean squared error (MSE) with the SCAD penalty. Below is an example of the code implementation.
+        Below is the implementation of the SCAD regularization method, tested on the concrete dataset.
     </p>
 
     <h3>Class Implementation</h3>
-    <pre>
+    <pre><code class="language-python">
 class SCADLinearModel(nn.Module):
     def __init__(self, input_dim, alpha=1.0, a=3.7, device="cpu"):
         super(SCADLinearModel, self).__init__()
@@ -103,12 +107,60 @@ class SCADLinearModel(nn.Module):
         mse_loss = nn.functional.mse_loss(predictions, targets)
         scad_penalty = self.scad_penalty(self.linear.weight, self.alpha, self.a)
         return mse_loss + scad_penalty.sum()
-    </pre>
 
-    <h3>Example: Concrete Dataset</h3>
-    <p>
-        The class was tested on the concrete dataset, where we applied SCAD regularization to determine the importance of features based on the final model's learned coefficients. Below are the results of the feature importance analysis after training the model for 1000 epochs.
-    </p>
+
+# Testing on the concrete dataset
+x = data.drop(columns = ['strength'])
+y = data['strength']
+
+x_train_np = x.to_numpy()
+y_train_np = y.to_numpy()
+
+x_train = torch.tensor(x_train_np, dtype=torch.double)
+y_train = torch.tensor(y_train_np.reshape(-1, 1), dtype=torch.double)
+
+model = SCADLinearModel(input_dim=x_train.shape[1], alpha=1.0, a=3.5, device="cpu")
+    
+optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+
+num_epochs = 1000
+for epoch in range(num_epochs):
+    model.train()
+        
+    predictions = model(x_train)
+        
+    loss = model.compute_loss(predictions, y_train)
+        
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+        
+    if (epoch + 1) % 100 == 0:
+        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
+    
+with torch.no_grad():
+    weights = model.linear.weight.cpu().numpy()
+
+feature_names = x.columns
+
+feature_importance = list(zip(feature_names, weights[0]))  
+
+print("\nAll Coefficients (Weights):")
+print("--------------------------------")
+for feature, weight in feature_importance:
+    print(f"{feature:<14} : {weight:.6f}")
+print("--------------------------------")
+
+feature_importance.sort(key=lambda x: abs(x[1]), reverse=True)
+
+print("\nFeature Importance (sorted by absolute weight value):")
+print("-----------------------------------------------------")
+print("| Feature        |    Weight    |   Importance Rank  |")
+print("-----------------------------------------------------")
+for rank, (feature, weight) in enumerate(feature_importance, 1):
+    print(f"| {feature:<14} |  {weight:>9.4f}   |        {rank:<2}          |")
+print("-----------------------------------------------------")
+    </code></pre>
 
     <h3>Feature Coefficients</h3>
     <table>
@@ -207,5 +259,9 @@ class SCADLinearModel(nn.Module):
         </tbody>
     </table>
 </section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+
 </body>
 </html>
