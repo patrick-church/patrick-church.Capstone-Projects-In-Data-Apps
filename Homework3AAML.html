@@ -262,6 +262,35 @@ print("-----------------------------------------------------")
     </table>
 </section>
 
+<section>
+    <h2>Dataset Generation and Comparison of Regularization Methods</h2>
+    <p>
+        Based on the simulation design explained in class, I generated 200 datasets where the input features exhibit a strong correlation structure (with a correlation coefficient of approximately 0.9). This high degree of correlation was designed to test the robustness of different regularization techniques, specifically ElasticNet, SqrtLasso, and SCAD, in approximating an ideal solution.
+    </p>
+    <p>
+        In this experiment, I designed an ideal "betastar" with a chosen sparsity pattern. The goal was to check which method — ElasticNet, SqrtLasso, or SCAD — produces the best approximation of this "betastar."
+    </p>
+    <p>
+        You will see the following implementations:
+    </p>
+    <ul>
+        <li>
+            **SCAD**: The SCAD implementation is already introduced in the <code>SCADLinearModel</code> class shown above. In this section, the SCAD regularization will be tested against the other two methods using the same generated datasets.
+        </li>
+        <li>
+            **ElasticNet**: An <code>ElasticNet</code> class has been implemented, where both the L1 (lasso) and L2 (ridge) penalties are applied to the model to handle correlated features. You will see the implementation of the ElasticNet method and how it performs in approximating the betastar in the generated datasets.
+        </li>
+        <li>
+            **SqrtLasso**: A <code>SqrtLasso</code> class is introduced that employs square-root Lasso regularization. The class includes the necessary adjustments to handle the highly correlated feature space and will be compared to the SCAD and ElasticNet methods.
+        </li>
+    </ul>
+
+    <p>
+        In the following sections, you will find the implementations of each of these regularization techniques, and their corresponding outputs when tested on the generated datasets.
+    </p>
+</section>
+        
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
 
