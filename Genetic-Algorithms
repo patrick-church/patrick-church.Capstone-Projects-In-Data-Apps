@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genetic Algorithm Implementation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            color: #e74c3c;
+        }
+        .section-title {
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Genetic Algorithm Implementation</h1>
+
+    <p>This webpage demonstrates how to use a Genetic Algorithm (GA) to optimize hyperparameters for a Random Forest model. Below is the Python code and an explanation of the key steps in the process.</p>
+
+    <h2 class="section-title">Step-by-Step Code Explanation</h2>
+    
+    <p><b>Step 1:</b> Split the dataset into training and testing sets (80% training, 20% testing).</p>
+    <pre><code>from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)</code></pre>
+
+    <p><b>Step 2:</b> Define the fitness function to minimize the model's error (mean squared error).</p>
+    <pre><code>creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+creator.create("Individual", list, fitness=creator.FitnessMin)</code></pre>
+
+    <p><b>Step 3:</b> Initialize the population with random hyperparameters.</p>
+    <pre><code>def create_individual():
+    return [random.randint(10, 200), random.randint(2, 20), random.uniform(0.1, 1.0)]</code></pre>
+
+    <p><b>Step 4:</b> Evaluate each set of hyperparameters by training a Random Forest model.</p>
+    <pre><code>def evaluate(individual):
+    model = RandomForestRegressor(n_estimators=individual[0], 
+                                  max_depth=individual[1], 
+                                  min_samples_split=individual[2])
+    model.fit(X_train, y_train)
+    predictions = model.predict(X_test)
+    return mean_squared_error(y_test, predictions),</code></pre>
+
+    <p><b>Step 5:</b> Define crossover to combine two sets of hyperparameters.</p>
+    <pre><code>toolbox.register("mate", tools.cxBlend, alpha=0.5)</code></pre>
+
+    <p><b>Step 6:</b> Define mutation to introduce random changes to hyperparameters.</p>
+    <pre><code>toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2)</code></pre>
+
+    <p><b>Step 7:</b> Select the best hyperparameters for the next generation.</p>
+    <pre><code>toolbox.register("select", tools.selTournament, tournsize=3)</code></pre>
+
+    <p><b>Step 8:</b> Run the genetic algorithm for 40 generations.</p>
+    <pre><code>population = toolbox.population(n=50)
+algorithms.eaSimple(population, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, verbose=True)</code></pre>
+
+    <p><b>Step 9:</b> Print the best hyperparameters found.</p>
+    <pre><code>best_individual = tools.selBest(population, k=1)[0]
+print(f"Best hyperparameters: {best_individual}")</code></pre>
+
+    <h2 class="section-title">Conclusion</h2>
+    <p>This implementation of a genetic algorithm optimizes hyperparameters for a Random Forest model, evolving the population over time to find the best solution.</p>
+
+</body>
+</html>
