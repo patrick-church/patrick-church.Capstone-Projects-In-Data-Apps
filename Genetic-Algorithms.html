@@ -42,74 +42,38 @@
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
-from deap import base, creator, tools, algorithms
 import random
 
-# Split the data into features (X) and target (y)
-X = data.drop(columns='strength')
-y = data['strength']
+# 1. Split the dataset
+X = data.drop(columns='strength')  # Features
+y = data['strength']  # Target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-# Step 1: Split the dataset into training and testing sets (80% training, 20% testing)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Step 2: Define the fitness function (minimize error)
-# We're trying to minimize the model's prediction error (mean squared error)
-creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-creator.create("Individual", list, fitness=creator.FitnessMin)
-
-# Step 3: Initialize population with random hyperparameters
-# Each individual represents a combination of random hyperparameters
-def create_individual():
-    return [random.randint(10, 200),      # Random value for n_estimators (number of trees)
-            random.randint(2, 20),        # Random value for max_depth (tree depth)
-            random.uniform(0.1, 1.0)]     # Random value for min_samples_split (min data to split)
-
-toolbox = base.Toolbox()
-toolbox.register("individual", tools.initIterate, creator.Individual, create_individual)
-toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-
-# Step 4: Evaluate each set of hyperparameters by training the model
-def evaluate(individual):
-    # Get the hyperparameters from the individual
-    n_estimators = individual[0]
-    max_depth = individual[1]
-    min_samples_split = individual[2]
-    
-    # Create a RandomForest model using the current hyperparameters
-    model = RandomForestRegressor(n_estimators=n_estimators, 
-                                  max_depth=max_depth, 
-                                  min_samples_split=min_samples_split)
-    model.fit(X_train, y_train)  # Train the model
-    
-    # Test the model and calculate the error (MSE)
+# 2. Fitness function: Train model and calculate error
+def evaluate(hyperparameters):
+    n_estimators, max_depth, min_samples_split = hyperparameters
+    model = RandomForestRegressor(n_estimators=n_estimators, max_depth=max_depth, min_samples_split=min_samples_split)
+    model.fit(X_train, y_train)
     predictions = model.predict(X_test)
-    mse = mean_squared_error(y_test, predictions)
-    
-    # Return the error (lower is better)
-    return mse,
+    return mean_squared_error(y_test, predictions)
 
-toolbox.register("evaluate", evaluate)
+# 3. Generate random hyperparameters
+def create_individual():
+    return [random.randint(10, 100),  # Number of trees
+            random.randint(2, 10),    # Max depth of trees
+            random.uniform(0.1, 1.0)] # Min samples to split
 
-# Step 5: Crossover - combine parts of two sets of hyperparameters to create a new one
-toolbox.register("mate", tools.cxBlend, alpha=0.5)
+# 4. Create a simple population
+population = [create_individual() for _ in range(10)]
 
-# Step 6: Mutation - randomly tweak some hyperparameters to explore new options
-toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2)
-
-# Step 7: Selection - choose the best sets of hyperparameters for the next generation
-toolbox.register("select", tools.selTournament, tournsize=3)
-
-# Step 8: Run the genetic algorithm for 40 generations, evolving 50 individuals
-population = toolbox.population(n=50)
-algorithms.eaSimple(population, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, verbose=True)
-
-# After evolution, retrieve the best hyperparameters found
-best_individual = tools.selBest(population, k=1)[0]
-print(f"Best hyperparameters: n_estimators={best_individual[0]}, max_depth={best_individual[1]}, min_samples_split={best_individual[2]}")
+# 5. Evaluate each set of hyperparameters
+for individual in population:
+    error = evaluate(individual)
+    print(f"Hyperparameters: {individual}, Error: {error}")
     </code></pre>
 
     <h2 class="section-title">Conclusion</h2>
-    <p>This implementation of a genetic algorithm optimizes hyperparameters for a Random Forest model, evolving the population over time to find the best solution.</p>
+    <p>This simplified version demonstrates the basic steps of using a genetic algorithm to tune hyperparameters, including creating random hyperparameter sets, training a model, and measuring error.</p>
 
     <!-- Load Prism.js for Python code syntax highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.js"></script>
