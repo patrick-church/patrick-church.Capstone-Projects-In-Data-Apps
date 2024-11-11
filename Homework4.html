@@ -51,6 +51,21 @@ count.plot(kind='bar', title='Count of Target Variable')
     <img src="path_to_image/Screenshot%202024-11-11%20at%2012.49.47%20AM.png" alt="Count of Target Variable Bar Plot">
 
 
+    
+
+    <h3>Description</h3>
+    <p>
+        Due to the large size of the Porto Seguro dataset, processing the entire dataset can be computationally expensive and time-consuming. 
+        To address this, I used a 20% stratified sampling approach, which helps reduce the dataset size while preserving the distribution of 
+        the target variable. This ensures that the sample contains a representative proportion of each class.
+    </p>
+
+    <p>
+        In the code, I first dropped the <code>target</code> and <code>id</code> columns from the original data and applied Min-Max scaling to normalize the features. 
+        Then, I combined the scaled features and the target variable into a single DataFrame. Using the <code>groupby</code> function, I sampled 20% of the data 
+        from each class. This stratified sampling helps maintain the original class balance in the subset, making it suitable for subsequent analysis and modeling.
+    </p>
+
     <h2>Sampling a 20% Subset of the Data</h2>
     <h3>Code Snippet</h3>
     <pre><code class="language-python">
@@ -68,19 +83,5 @@ X_sampled = data_sampled.drop(columns="target")
 y_sampled = data_sampled["target"]
     </code></pre>
 
-    <h3>Description</h3>
-    <p>
-        Due to the large size of the Porto Seguro dataset, processing the entire dataset can be computationally expensive and time-consuming. 
-        To address this, I used a 20% stratified sampling approach, which helps reduce the dataset size while preserving the distribution of 
-        the target variable. This ensures that the sample contains a representative proportion of each class.
-    </p>
-
-    <p>
-        In the code, I first dropped the <code>target</code> and <code>id</code> columns from the original data and applied Min-Max scaling to normalize the features. 
-        Then, I combined the scaled features and the target variable into a single DataFrame. Using the <code>groupby</code> function, I sampled 20% of the data 
-        from each class. This stratified sampling helps maintain the original class balance in the subset, making it suitable for subsequent analysis and modeling.
-    </p>
-</body>
-</html>
 </body>
 </html>
