@@ -147,11 +147,7 @@ weighted avg       0.94      0.96      0.95     23809
 
     <h2>Applying SMOTE to Address Class Imbalance</h2>
     <p>
-        SMOTE (Synthetic Minority Over-sampling Technique) is an oversampling method commonly used to balance imbalanced datasets. 
-        SMOTE generates synthetic samples for the minority class by interpolating between existing samples. Instead of simply duplicating 
-        minority class samples, SMOTE selects two or more similar instances within the minority class and creates synthetic points along 
-        the line segments connecting them. This technique helps improve the model’s ability to learn the characteristics of the minority 
-        class without simply memorizing duplicates.
+SMOTE, which stands for Synthetic Minority Over-sampling Technique, is frequently applied to balance datasets with an uneven class distribution. It generates synthetic samples by interpolating between existing minority class examples, creating data points along the paths between similar instances. This technique improves the model’s understanding of the minority class by introducing new, realistic samples rather than merely duplicating existing ones.
     </p>
 
     <h3>Code Snippet</h3>
@@ -211,10 +207,7 @@ weighted avg       0.93      0.69      0.78     23809
 
     <h2>Applying ADASYN to Address Class Imbalance</h2>
     <p>
-        ADASYN (Adaptive Synthetic Sampling) is an oversampling technique that generates synthetic samples for the minority class based 
-        on the density of the samples. ADASYN focuses more on the minority samples that are harder to classify, generating synthetic samples 
-        around these challenging points. This approach helps in reducing the bias introduced by the class imbalance, improving the model's 
-        ability to correctly classify instances of the minority class.
+        Adaptive Synthetic Sampling, or ADASYN, is an oversampling technique designed to improve class balance by generating synthetic samples for the minority class according to sample density. ADASYN places more focus on the harder-to-classify minority samples, creating synthetic data points around these regions. This targeted approach helps the model better handle the class imbalance, improving its accuracy in identifying minority class cases.
     </p>
 
     <h3>Code Snippet</h3>
