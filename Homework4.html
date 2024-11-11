@@ -344,10 +344,7 @@ weighted avg       0.97      0.96      0.96     24509
 
 <h2>Implementing Normalizing Flows for Class Imbalance</h2>
     <p>
-        Normalizing Flows provide a probabilistic method to model complex distributions by transforming simple base distributions using a series of invertible transformations. 
-        In this application, we used a RealNVP-based Normalizing Flow model to oversample the minority class in the Porto Seguro dataset. The model learns to map the minority 
-        class distribution effectively, helping to generate synthetic samples conditioned on the class label. This technique addresses class imbalance without traditional 
-        oversampling techniques like SMOTE or ADASYN.
+      Normalizing Flows provide a way to model complex probability distributions by transforming a simple distribution through multiple invertible transformations. For this dataset, I used a RealNVP-based Normalizing Flow model to generate synthetic minority class samples in the Porto Seguro dataset. The model learns the minority class distribution directly and generates synthetic samples conditioned on the class label, achieving class balance without using standard methods like SMOTE or ADASYN.
     </p>
 
     <h3>Code Implementation</h3>
