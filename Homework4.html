@@ -142,6 +142,9 @@ weighted avg       0.94      0.96      0.95     23809
     <p>This confusion matrix shows that the classifier predicts the majority class (0) almost exclusively, resulting in very few correct predictions for the minority class (1).</p>
     <img src="Images/confusion_matrix (1).png" alt="Confusion Matrix" width="500">
 
+    <p>The results of the classifier without any oversampling technique demonstrate the need for oversampling methods, as the model heavily favored the majority class, leading to poor recall for the minority class and highlighting its inability to accurately predict minority instances in an imbalanced dataset.</p>
+
+
     <h2>Applying SMOTE to Address Class Imbalance</h2>
     <p>
         SMOTE (Synthetic Minority Over-sampling Technique) is an oversampling method commonly used to balance imbalanced datasets. 
