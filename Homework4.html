@@ -17,5 +17,34 @@
         By applying these methods, I aim to improve the model's ability to accurately identify minority class instances and provide a comparative analysis 
         of the effectiveness of each approach.
     </p>
+
+    <h2>Class Distribution Visualization</h2>
+    <h3>Code Snippet</h3>
+    <pre>
+<code>
+# Python code used to generate the bar plot
+count = train['target'].value_counts()
+count_zeros = count[0]
+count_ones = count[1]
+count.plot(kind='bar', title='Count of Target Variable')
+</code>
+    </pre>
+
+    <h3>Description</h3>
+    <p>
+        The code snippet above counts the occurrences of each class in the target variable of the Porto Seguro dataset. 
+        Using the <code>value_counts()</code> function, it calculates the number of samples for each class: class 0 (majority) 
+        and class 1 (minority). This information is then plotted as a bar chart, showing the distribution of the two classes.
+    </p>
+
+    <h3>Interpretation of the Plot</h3>
+    <p>
+        The bar chart below visualizes the class imbalance in the dataset. The majority class (class 0) has a significantly higher count 
+        than the minority class (class 1), which highlights the need for oversampling techniques. Oversampling generates synthetic 
+        samples for the minority class, helping balance the dataset and allowing the model to better learn the characteristics of the minority class.
+    </p>
+
+    <!-- Insert the path to your image here -->
+    <img src="path_to_image/Screenshot 2024-11-11 at 12.49.47 AM.png" alt="Count of Target Variable Bar Plot">
 </body>
 </html>
