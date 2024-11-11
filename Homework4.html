@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oversampling Methods on Porto Seguro Dataset</title>
+    
+    <!-- Include Highlight.js CSS and JavaScript -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
 </head>
 <body>
     <h1>Patrick Church</h1>
@@ -20,15 +25,13 @@
 
     <h2>Class Distribution Visualization</h2>
     <h3>Code Snippet</h3>
-    <pre>
-<code>
+    <pre><code class="language-python">
 # Python code used to generate the bar plot
 count = train['target'].value_counts()
 count_zeros = count[0]
 count_ones = count[1]
 count.plot(kind='bar', title='Count of Target Variable')
-</code>
-    </pre>
+    </code></pre>
 
     <h3>Description</h3>
     <p>
@@ -40,11 +43,10 @@ count.plot(kind='bar', title='Count of Target Variable')
     <h3>Interpretation of the Plot</h3>
     <p>
         The bar chart below visualizes the class imbalance in the dataset. The majority class (class 0) has a significantly higher count 
-        than the minority class (class 1), which highlights the need for oversampling techniques. Oversampling generates synthetic 
-        samples for the minority class, helping balance the dataset and allowing the model to better learn the characteristics of the minority class.
+        than the minority class (class 1), which highlights the need samples for the minority class, helping balance the dataset and allowing the model to better learn the characteristics of the minority class.
     </p>
 
     <!-- Insert the path to your image here -->
-    <img src="path_to_image/Screenshot 2024-11-11 at 12.49.47 AM.png" alt="Count of Target Variable Bar Plot">
+    <img src="path_to_image/Screenshot%202024-11-11%20at%2012.49.47%20AM.png" alt="Count of Target Variable Bar Plot">
 </body>
 </html>
