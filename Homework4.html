@@ -470,26 +470,16 @@ Recall for class 1: 0.50
 
     <h2>Summary of Oversampling Method Effectiveness</h2>
 
-<p><strong>SMOTE (Synthetic Minority Over-sampling Technique):</strong> SMOTE helped address the imbalance by creating synthetic samples for the minority class. It worked by interpolating between existing minority instances, which boosted recall for class 1 and balanced recall across both classes.<br>
-However, SMOTE still faced challenges with low precision for the minority class, as its synthetic samples didn’t fully capture the complex distribution of the minority data.<br>
-Overall, SMOTE was effective for improving recall, though it didn’t make a significant impact on precision.</p>
+<p><strong>SMOTE (Synthetic Minority Over-sampling Technique):</strong> SMOTE helped address the imbalance by creating synthetic samples for the minority class. It worked by interpolating between existing minority instances, which boosted recall for class 1 and balanced recall across both classes. However, SMOTE still faced challenges with low precision for the minority class, as its synthetic samples didn’t fully capture the complex distribution of the minority data. Overall, SMOTE was effective for improving recall, though it didn’t make a significant impact on precision.</p>
 
-<p><strong>ADASYN (Adaptive Synthetic Sampling):</strong> ADASYN took SMOTE a step further by focusing on the more challenging minority samples, generating synthetic points around instances that were harder to classify.<br>
-This approach slightly boosted recall for the minority class compared to SMOTE, but precision remained low.<br>
-ADASYN performed similarly to SMOTE overall, with a slight advantage in handling difficult-to-classify areas within the minority class.</p>
+<p><strong>ADASYN (Adaptive Synthetic Sampling):</strong> ADASYN took SMOTE a step further by focusing on the more challenging minority samples, generating synthetic points around instances that were harder to classify. This approach slightly boosted recall for the minority class compared to SMOTE, but precision remained low. ADASYN performed similarly to SMOTE overall, with a slight advantage in handling difficult-to-classify areas within the minority class.</p>
 
-<p><strong>FastKDE (Kernel Density Estimation):</strong> FastKDE generated synthetic samples based on density estimation, concentrating on regions with high density in the minority class distribution.<br>
-This approach led to a more natural distribution of synthetic samples, resulting in a substantial improvement in recall and better precision for the minority class, along with high accuracy (~96%).<br>
-FastKDE stood out as one of the most effective methods in balancing precision and recall in this context.</p>
+<p><strong>FastKDE (Kernel Density Estimation):</strong> FastKDE generated synthetic samples based on density estimation, concentrating on regions with high density in the minority class distribution. This approach led to a more natural distribution of synthetic samples, resulting in a substantial improvement in recall and better precision for the minority class, along with high accuracy (~96%). FastKDE stood out as one of the most effective methods in balancing precision and recall in this context.</p>
 
-<p><strong>Normalizing Flows:</strong> Using Normalizing Flows, a generative modeling technique, this method aimed to learn and generate synthetic samples for the minority class.<br>
-While it showed potential, it provided only moderate recall for the minority class and struggled with precision, leading to lower overall accuracy (~62%).<br>
-Normalizing Flows could be effective with more tuning, but they were less effective than FastKDE for this dataset.</p>
+<p><strong>Normalizing Flows:</strong> Using Normalizing Flows, a generative modeling technique, this method aimed to learn and generate synthetic samples for the minority class. While it showed potential, it provided only moderate recall for the minority class and struggled with precision, leading to lower overall accuracy (~62%). Normalizing Flows could be effective with more tuning, but they were less effective than FastKDE for this dataset.</p>
 
 <h3>Conclusion</h3>
-<p><strong>In summary,</strong> FastKDE emerged as the most effective oversampling method, achieving a good balance between precision and recall for the minority class.<br>
-SMOTE and ADASYN followed, with similar performances.<br>
-Normalizing Flows showed promise but would require further refinement to achieve comparable effectiveness.</p>
+<p><strong>In summary,</strong> FastKDE emerged as the most effective oversampling method, achieving a good balance between precision and recall for the minority class. SMOTE and ADASYN followed, with similar performances. Normalizing Flows showed promise but would require further refinement to achieve comparable effectiveness.</p>
 
 
 </body>
