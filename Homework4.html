@@ -205,7 +205,70 @@ weighted avg       0.93      0.69      0.78     23809
     <h3>Confusion Matrix</h3>
     <p>The confusion matrix below illustrates how the SMOTE-based classifier performs on the test set, showing a slight improvement in identifying minority class instances:</p>
     <img src="Images/confusion_matrix (2).png" alt="SMOTE Confusion Matrix" width="500">
-</body>
+
+    <h2>Applying ADASYN to Address Class Imbalance</h2>
+    <p>
+        ADASYN (Adaptive Synthetic Sampling) is an oversampling technique that generates synthetic samples for the minority class based 
+        on the density of the samples. ADASYN focuses more on the minority samples that are harder to classify, generating synthetic samples 
+        around these challenging points. This approach helps in reducing the bias introduced by the class imbalance, improving the model's 
+        ability to correctly classify instances of the minority class.
+    </p>
+
+    <h3>Code Snippet</h3>
+    <pre><code class="language-python">
+from imblearn.over_sampling import ADASYN
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Splitting the data
+X_train, X_test, y_train, y_test = train_test_split(X_sampled, y_sampled, test_size=0.3, random_state=42, stratify=y_sampled)
+
+# Applying ADASYN
+adasyn = ADASYN()
+X_ada, y_ada = adasyn.fit_resample(X_train, y_train)
+
+# Training the classifier
+ada_classifier = KNeighborsClassifier(n_neighbors=5, weights='uniform')
+ada_classifier.fit(X_ada, y_ada)
+
+# Making predictions
+ada_y_pred = ada_classifier.predict(X_test)
+
+# Calculating accuracy and displaying classification report
+ada_accuracy = accuracy_score(y_test, ada_y_pred)
+print(f"ADASYN Accuracy: {ada_accuracy * 100:.2f}%")
+print(classification_report(y_test, ada_y_pred))
+
+# Generating and displaying the confusion matrix
+cm_ada = confusion_matrix(y_test, ada_y_pred)
+sns.heatmap(cm_ada, annot=True, fmt='d')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.show()
+    </code></pre>
+
+    <h3>Results</h3>
+    <p>The accuracy achieved with ADASYN is <strong>68.80%</strong>. This technique improves the model’s recall for the minority class by generating synthetic samples for challenging cases in the minority class. Here are the detailed metrics:</p>
+
+    <pre><code class="language-text">
+              precision    recall  f1-score   support
+
+           0       0.97      0.70      0.81     34411
+           1       0.04      0.35      0.08      1302
+
+    accuracy                           0.69     35713
+   macro avg       0.50      0.52      0.44     35713
+weighted avg       0.93      0.69      0.79     35713
+    </code></pre>
+
+  
+    <h3>Confusion Matrix</h3>
+    <p>The confusion matrix below illustrates how the ADASYN-based classifier performs on the test set, showing an improvement in identifying minority class instances:</p>
+    <img src="Images/confusion_matrix (3).png" alt="ADASYN Confusion Matrix" width="500">
+
 
 </body>
 </html>
