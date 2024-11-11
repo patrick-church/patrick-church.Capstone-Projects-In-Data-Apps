@@ -83,5 +83,64 @@ X_sampled = data_sampled.drop(columns="target")
 y_sampled = data_sampled["target"]
     </code></pre>
 
+<h2>Classifier Performance on Imbalanced Data Without Oversampling</h2>
+    <p>
+        This section demonstrates the performance of a straightforward classifier on the highly imbalanced Porto Seguro dataset, 
+        without using any oversampling techniques. In this setup, the classifier is exposed to a dataset dominated by class 0 
+        instances, with very few examples of class 1. As a result, the classifier achieves a high accuracy by predicting the 
+        majority class (class 0) for nearly every test sample. However, this accuracy is misleading, as it does not reflect 
+        the model’s ability to identify minority class instances accurately. This scenario highlights the limitations of 
+        accuracy as a metric when dealing with highly imbalanced data.
+    </p>
+
+    <h3>Code Snippet</h3>
+    <pre><code class="language-python">
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Splitting the data
+X_train, X_test, y_train, y_test = train_test_split(X_sampled, y_sampled, test_size=0.2, random_state=42, stratify=y_sampled)
+
+# Initializing and training the classifier
+classifier = KNeighborsClassifier(n_neighbors=5, weights='uniform')
+classifier.fit(X_train, y_train)
+
+# Making predictions
+y_pred = classifier.predict(X_test)
+
+# Calculating accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+
+# Generating and displaying the confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+sns.heatmap(cm, annot=True, fmt='d')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.show()
+    </code></pre>
+
+    <h3>Results</h3>
+    <p>The classifier achieves a high accuracy of <strong>96.31%</strong>, largely due to predicting the majority class (0) for most samples. Below are the detailed metrics:</p>
+    
+    <pre><code class="language-text">
+              precision    recall  f1-score   support
+
+           0       0.96      1.00      0.98     22941
+           1       0.19      0.00      0.01       868
+
+    accuracy                           0.96     23809
+   macro avg       0.58      0.50      0.49     23809
+weighted avg       0.94      0.96      0.95     23809
+    </code></pre>
+
+
+    <h3>Confusion Matrix</h3>
+    <p>This confusion matrix shows that the classifier predicts the majority class (0) almost exclusively, resulting in very few correct predictions for the minority class (1).</p>
+    <img src="Images/confusion_matrix (1).png" alt="Confusion Matrix" width="500">
+
 </body>
 </html>
