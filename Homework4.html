@@ -101,21 +101,17 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Splitting the data
+
 X_train, X_test, y_train, y_test = train_test_split(X_sampled, y_sampled, test_size=0.2, random_state=42, stratify=y_sampled)
 
-# Initializing and training the classifier
 classifier = KNeighborsClassifier(n_neighbors=5, weights='uniform')
 classifier.fit(X_train, y_train)
 
-# Making predictions
 y_pred = classifier.predict(X_test)
 
-# Calculating accuracy
 accuracy = accuracy_score(y_test, y_pred)
 print(f"Accuracy: {accuracy * 100:.2f}%")
 
-# Generating and displaying the confusion matrix
 cm = confusion_matrix(y_test, y_pred)
 sns.heatmap(cm, annot=True, fmt='d')
 plt.xlabel('Predicted')
@@ -159,26 +155,20 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Splitting the data
 X_train, X_test, y_train, y_test = train_test_split(X_sampled, y_sampled, test_size=0.2, random_state=42, stratify=y_sampled)
 
-# Applying SMOTE
 smote = SMOTE(random_state=42)
 X_smote, y_smote = smote.fit_resample(X_train, y_train)
 
-# Training the classifier
 smote_classifier = KNeighborsClassifier(n_neighbors=5, weights='uniform')
 smote_classifier.fit(X_smote, y_smote)
 
-# Making predictions
 smote_y_pred = smote_classifier.predict(X_test)
 
-# Calculating accuracy and displaying classification report
 smote_accuracy = accuracy_score(y_test, smote_y_pred)
 print(f"SMOTE Accuracy: {smote_accuracy * 100:.2f}%")
 print(classification_report(y_test, smote_y_pred))
 
-# Generating and displaying the confusion matrix
 cm_smote = confusion_matrix(y_test, smote_y_pred)
 sns.heatmap(cm_smote, annot=True, fmt='d')
 plt.xlabel('Predicted')
@@ -219,26 +209,20 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Splitting the data
 X_train, X_test, y_train, y_test = train_test_split(X_sampled, y_sampled, test_size=0.3, random_state=42, stratify=y_sampled)
 
-# Applying ADASYN
 adasyn = ADASYN()
 X_ada, y_ada = adasyn.fit_resample(X_train, y_train)
 
-# Training the classifier
 ada_classifier = KNeighborsClassifier(n_neighbors=5, weights='uniform')
 ada_classifier.fit(X_ada, y_ada)
 
-# Making predictions
 ada_y_pred = ada_classifier.predict(X_test)
 
-# Calculating accuracy and displaying classification report
 ada_accuracy = accuracy_score(y_test, ada_y_pred)
 print(f"ADASYN Accuracy: {ada_accuracy * 100:.2f}%")
 print(classification_report(y_test, ada_y_pred))
 
-# Generating and displaying the confusion matrix
 cm_ada = confusion_matrix(y_test, ada_y_pred)
 sns.heatmap(cm_ada, annot=True, fmt='d')
 plt.xlabel('Predicted')
@@ -281,17 +265,14 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Extract minority class features and reduce dimensionality with PCA
 minority_features = X_sampled[y_sampled == 1].values
 pca = PCA(n_components=2)
 minority_features_reduced = pca.fit_transform(minority_features)
 
-# Generate synthetic samples within the bounds of the minority class distribution
 lower_bound = minority_features_reduced.min(axis=0)
 upper_bound = minority_features_reduced.max(axis=0)
 testpoints = np.random.uniform(low=lower_bound, high=upper_bound, size=(10000, 2))
 
-# Calculate the density of points using FastKDE
 pdf = fastkde.pdf_at_points(
     minority_features_reduced[:, 0], 
     minority_features_reduced[:, 1], 
@@ -299,21 +280,17 @@ pdf = fastkde.pdf_at_points(
     num_points=2**9 + 1
 )
 
-# Select the high-density points to create synthetic samples
 fakes = testpoints[pdf > np.percentile(pdf, 65)]
 fakes_original_space = pca.inverse_transform(fakes)
 
-# Concatenate synthetic samples with the original dataset
 X_fakes = np.row_stack([X_sampled, fakes_original_space])
 y_fakes = np.concatenate([y_sampled, np.ones(len(fakes))])
 
-# Split the dataset and train the classifier
 X_train, X_test, y_train, y_test = train_test_split(X_fakes, y_fakes, test_size=0.2, random_state=42, stratify=y_fakes)
 fastkdeclassifier = KNeighborsClassifier()
 fastkdeclassifier.fit(X_train, y_train)
 y_pred = fastkdeclassifier.predict(X_test)
 
-# Display the classification report and confusion matrix
 print(classification_report(y_test, y_pred))
 
 cm_kde = confusion_matrix(y_test, y_pred)
@@ -363,23 +340,19 @@ import matplotlib.pyplot as plt
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# Preprocess the dataset
 scaler = MinMaxScaler()
 X_sampled_scaled = scaler.fit_transform(X_sampled)
 X_sampled_tensor = torch.tensor(X_sampled_scaled, dtype=torch.float32).to(device)
 y_sampled_tensor = torch.tensor(y_sampled.values, dtype=torch.float32).reshape(-1, 1).to(device)
 
-# Define Normalizing Flow model
 num_features = X_sampled_tensor.shape[1]
 num_layers = 10
 hidden_features = 8
 learning_rate = 0.001
 num_epochs = 20
 
-# Base distribution with conditioning
 base_dist = ConditionalDiagonalNormal(shape=[num_features], context_encoder=nn.Linear(1, 2 * num_features))
 
-# Flow transformations
 transforms = []
 for _ in range(num_layers):
     transforms.append(ReversePermutation(features=num_features))
@@ -388,10 +361,8 @@ for _ in range(num_layers):
 transform = CompositeTransform(transforms)
 flow = Flow(transform, base_dist).to(device)
 
-# Optimizer
 optimizer = optim.Adam(flow.parameters(), lr=learning_rate)
 
-# Training loop
 for epoch in range(num_epochs):
     flow.train()
     epoch_loss = 0
@@ -404,7 +375,6 @@ for epoch in range(num_epochs):
     epoch_loss /= len(dataset)
     print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss:.4f}")
 
-# Evaluation
 flow.eval()
 with torch.no_grad():
     x_ = X_sampled_tensor
@@ -414,11 +384,9 @@ with torch.no_grad():
     LL_class_0 = flow.log_prob(x_, context=hyp_0).cpu().numpy()
     LL_class_1 = flow.log_prob(x_, context=hyp_1).cpu().numpy()
 
-# Make predictions based on higher log-likelihood
 y_pred = np.zeros_like(y_sampled)
 y_pred[LL_class_1 > LL_class_0] = 1
 
-# Confusion Matrix
 conf_matrix = confusion_matrix(y_sampled, y_pred)
 plt.figure(figsize=(8, 6))
 sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", xticklabels=[0, 1], yticklabels=[0, 1])
