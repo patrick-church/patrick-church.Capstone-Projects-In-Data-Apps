@@ -4,7 +4,7 @@
 # Project Links:
 
 ### Locally Weighted Regression & Random Forest: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/
-### Project 2: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/GradientBoostedLWR.html
+### Gradient Boosted Locally Weighted Regression: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/GradientBoostedLWR.html
 ### Project 3: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/PyTorchVariableSelection.html
 ### Project 4: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/ClassificationClassImbalance.html
 
