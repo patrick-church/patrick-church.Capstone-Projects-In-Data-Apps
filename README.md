@@ -3,4 +3,4 @@
 
 # Project Links:
 
-## Project 1: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/
+### Project 1: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/
