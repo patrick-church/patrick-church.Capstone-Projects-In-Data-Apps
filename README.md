@@ -1,1 +1,1 @@
-# patrick-church.Capstone-Projects-In-Data-Apps
+# Advanced Applied Machine Learning Projects for my Capstone in Data Applications course  
