@@ -4,7 +4,7 @@
 # Project Links:
 
 ### Project 1: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/
-### Project 2: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/Assignment2.html
+### Project 2: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/Gradient Boosted LWR.html
 ### Project 3: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/Homework3AAML.html
 ### Project 4: https://patrick-church.github.io/patrick-church.Capstone-Projects-In-Data-Apps/Homework4.html
 
