@@ -1,6 +1,6 @@
 # Advanced Applied Machine Learning Projects for my Capstone in Data Applications course  
 
-### The .ipynb files above contain the latex used to create each project website. The project websites are linked below.
+### The html files above contain the latex used to create each project website. The project websites are linked below.
 
 # Project Website Links:
 
