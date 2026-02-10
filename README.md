@@ -1,7 +1,8 @@
 # Advanced Applied Machine Learning Projects for my Capstone in Data Applications course  
 
+### The .ipynb files above contain the latex used to create each project website. The project websites are linked below.
 
-# Project Links:
+# Project Website Links:
 
 ### Locally Weighted Regression & Random Forest: https://patrick-church.github.io/Advanced-Applied-Machine-Learning-Projects/
 ### Genetic Algorithm Hyperparameter Optimization: https://patrick-church.github.io/Advanced-Applied-Machine-Learning-Projects/Genetic-Algorithm-Hyperparameter-Optimization.html
